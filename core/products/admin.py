@@ -1,13 +1,30 @@
 from django.contrib import admin
-from .models import Product, ProductImage, Category
+from .models import Product, ProductImage, Category, Discount
 
 
 class ProductImageInline(admin.TabularInline):
+    """
+    Inline of product image model to product model.
+    """
     model = ProductImage
     extra = 1
     max_num = 10
-    
 
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug")
+    search_fields = ("name", "slug")
+    prepopulated_fields = {"slug": ("name",)}
+    
+    
+@admin.register(Discount)
+class DiscountAdmin(admin.ModelAdmin):
+    list_display = ("name", "percentage", "start_date", "end_date", "is_active")
+    search_fields = ("name", "percentage")
+    ordering = ("-start_date", "is_active")
+    list_editable = ("is_active",)
+    
+    
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("title", "slug", "category", "price", "is_stock", "is_active", "created", "updated")
@@ -19,6 +36,7 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ("-created", "-is_active",)
     prepopulated_fields = {"slug": ("title",)}
     
+    # use product image inline
     inlines = [ProductImageInline]
 
 
@@ -28,11 +46,4 @@ class ProductImageAdmin(admin.ModelAdmin):
     search_fields = ("product", "alt_text")
     raw_id_fields = ("product",)
     list_editable = ("alt_text",)
-
-
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
-    search_fields = ("name", "slug")
-
-
+    
