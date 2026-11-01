@@ -73,11 +73,14 @@ class Product(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     slug = models.SlugField(max_length=255)
+    
+    main_image = models.ImageField(upload_to="products/main/")
+    
     # product category
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
-        related_name="product"
+        related_name="products"
     )
     
     price = models.DecimalField(
@@ -131,10 +134,10 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="images"
+        related_name="gallery_images"
     )
     image = models.ImageField(
-        upload_to="products/"
+        upload_to="products/gallery/"
     )
     alt_text = models.CharField(
         max_length=255,
