@@ -1,0 +1,44 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+    <hr>
+    <div class="posts-grid">
+        {% for product in products %}
+            <article class="post-card">
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
+                <div class="post-card-content">
+                    <h2 class="post-card-title">
+                        <a href="{% url 'products:product-detail' pk=product.pk slug=product.slug %}">{{ product.title }}</a>
+                    </h2>
+                    {% if product.category %}
+                        <a href="" class="post-card-category">{{ product.category.name }}</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="empty-state-icon">📝</div>
+                <h3 class="empty-state-title">No Product yet</h3>
+                <p class="empty-state-text">There are no product to display at the moment.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">&laquo; First</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">Previous</a>
+        {% endif %}
+
+        <span class="pagination-current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">Last &raquo;</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <a href="{% url 'products:product-list' %}"><h1>E Commerce</h1></a>
+            </div>
+            <div class="nav-search">
+                <form action="{% url 'products:product-list' %}" method="get">
+                    <input
+                        type="search"
+                        name="s"
+                        class="search-input"
+                        placeholder="Search by title..."
+                        value="{{ request.GET.s }}"
+                    />
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="content-wrapper">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% block content%}{% endblock %}
+        </div>
+    </main>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

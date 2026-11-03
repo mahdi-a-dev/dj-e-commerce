@@ -1,0 +1,10 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        {{ product.title }}
+    </div>
+    {{ product.description }}
+{% endblock %}
