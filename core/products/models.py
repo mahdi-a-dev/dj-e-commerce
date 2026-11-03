@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import CheckConstraint, Q, F
 from django.utils import timezone
+from decimal import Decimal
 from django.core.exceptions import ValidationError
 
 
@@ -49,6 +50,20 @@ class Discount(models.Model):
     
     is_active = models.BooleanField(default=True)
     
+    @property
+    def is_valid(self):
+        """
+        Is discount valid.
+        The discount must be active and not have expired.
+        """
+        now = timezone.localdate()
+        
+        return (
+            self.is_active
+            and self.start_date <= now
+            and self.end_date > now
+        )
+
     def clean(self):
         if self.start_date >= self.end_date:
             raise ValidationError({
@@ -127,6 +142,32 @@ class Product(models.Model):
     # cuscomize manager
     products = ProductManager()
     
+    @property
+    def discount_price(self):
+        """
+        Calculate price after discount.
+        """
+        discount = self.discount
+        
+        if not discount or not discount.is_valid:
+            return None
+        
+        percentage = discount.percentage
+
+        return self.price * (Decimal("1") - percentage / Decimal("100"))
+    
+    @property
+    def final_price(self):
+        """
+        To get final price after discount or haven't discount.
+        """
+        discount = self.discount_price
+        
+        if discount is not None:
+            return discount
+        
+        return self.price
+    
     def save(self, *args, **kwargs):
         if not self.slug:
             from django.utils.text import slugify
@@ -136,6 +177,7 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("products:product-detail", args=[self.slug])
+    
 
     def __str__(self):
         return self.title
