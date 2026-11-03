@@ -1,7 +1,9 @@
 from django.db import models
 from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models import CheckConstraint, Q
+from django.db.models import CheckConstraint, Q, F
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 class Category(models.Model):
@@ -16,6 +18,13 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            from django.utils.text import slugify
+            self.slug = slugify(self.name, allow_unicode=True)
+        
+        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name_plural = "categories"
@@ -35,10 +44,16 @@ class Discount(models.Model):
         ]
     )
     
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    start_date = models.DateField(validators=[MinValueValidator(timezone.localdate)])
+    end_date = models.DateField()
     
     is_active = models.BooleanField(default=True)
+    
+    def clean(self):
+        if self.start_date >= self.end_date:
+            raise ValidationError({
+                'end_date': 'End date must be after start date.'
+            })
     
     def __str__(self):
         return self.name
@@ -50,7 +65,11 @@ class Discount(models.Model):
         constraints = [
             CheckConstraint(
                 condition=Q(percentage__gt=0) & Q(percentage__lte=100),
-                name="discount_percentage_must_be_between_1_and_100"
+                name="discount_percentage_between_1_and_100"
+            ),
+            CheckConstraint(
+                condition=Q(end_date__gt=F("start_date")),
+                name="discount_end_after_start"
             )
         ]
     
@@ -107,6 +126,13 @@ class Product(models.Model):
     objects = models.Manager()
     # cuscomize manager
     products = ProductManager()
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            from django.utils.text import slugify
+            self.slug = slugify(self.title, allow_unicode=True)
+        
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("products:product-detail", args=[self.slug])
