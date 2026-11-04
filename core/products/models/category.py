@@ -1,0 +1,26 @@
+from django.db import models
+from django.urls import reverse
+
+
+class Category(models.Model):
+    """
+    Represent a category model for product model.
+    """
+    name = models.CharField(max_length=255, db_index=True)
+    slug = models.SlugField(max_length=255, unique=True)
+
+    def get_absolute_url(self):
+        return reverse("products:category-list", args=[self.slug])
+
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            from django.utils.text import slugify
+            self.slug = slugify(self.name, allow_unicode=True)
+        
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name_plural = "categories"
