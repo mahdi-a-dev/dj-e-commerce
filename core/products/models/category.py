@@ -6,6 +6,15 @@ class Category(models.Model):
     """
     Represent a category model for product model.
     """
+    
+    # categorys can have subcategory
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        related_name="subcategory",
+        null=True,
+        blank=True
+    )
     name = models.CharField(max_length=255, db_index=True)
     slug = models.SlugField(max_length=255, unique=True)
 
@@ -24,3 +33,4 @@ class Category(models.Model):
     
     class Meta:
         verbose_name_plural = "categories"
+        ordering = ("-parent__id",)

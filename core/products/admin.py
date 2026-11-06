@@ -12,8 +12,9 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
+    list_display = ("name", "slug", "parent")
     search_fields = ("name", "slug")
+    raw_id_fields = ("parent",)
     prepopulated_fields = {"slug": ("name",)}
     
     
