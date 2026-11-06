@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 
 user_model = get_user_model()
 postal_code_validator = RegexValidator(
-    regex=f"^\d{10}$",
+    regex=r"^\d{10}$",
     message="Postal code must contain exactly 10 digits."
 )
 
