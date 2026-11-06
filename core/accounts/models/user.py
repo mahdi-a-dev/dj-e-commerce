@@ -1,4 +1,5 @@
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -41,10 +42,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     """
     Custome user model, verification with phone number
     """
-    phone_number = models.CharField(
-        max_length=11,
+    phone_number = PhoneNumberField(
+        max_length=13,
         unique=True
     )
+    
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
         
@@ -56,4 +58,4 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
     
     def __str__(self):
-        return self.phone_number
+        return self.phone_number.as_national

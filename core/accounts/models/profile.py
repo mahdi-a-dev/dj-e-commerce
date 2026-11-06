@@ -4,6 +4,9 @@ from django.contrib.auth import get_user_model
 user_model = get_user_model()
 
 class Profile(models.Model):
+    """
+    Profile model contains user personal details
+    """
     user = models.OneToOneField(
         user_model,
         on_delete=models.CASCADE,

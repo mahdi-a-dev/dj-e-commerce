@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
     'django.contrib.humanize',
+    "phonenumber_field",
 ]
 
 MIDDLEWARE = [
@@ -145,4 +146,9 @@ MAILERS = {
     },
 }
 
+# custome user model
 AUTH_USER_MODEL = "accounts.User"
+
+# phone numbers field
+PHONENUMBER_DEFAULT_REGION = "IR"
+PHONENUMBER_DB_FORMAT = "E164"

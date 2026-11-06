@@ -16,7 +16,8 @@ RUN pip install --upgrade pip
 COPY requirements.txt  /app/
  
 # run this command to install all dependencies 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt \
+-i https://package-mirror.liara.ir/repository/pypi/simple
 
 # Copy the Django project to the container
 COPY . /app/
