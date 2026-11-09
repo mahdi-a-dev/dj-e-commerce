@@ -23,7 +23,7 @@ class Address(models.Model):
     province = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=10, validators=[postal_code_validator])
-    address = models.TextField()
+    full_address = models.TextField()
     
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
+    'cart.apps.CartConfig',
+    'orders.apps.OrdersConfig',
     'django.contrib.humanize',
     "phonenumber_field",
 ]
