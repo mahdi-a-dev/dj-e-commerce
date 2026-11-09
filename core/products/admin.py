@@ -28,12 +28,12 @@ class DiscountAdmin(admin.ModelAdmin):
     
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("title", "slug", "category", "price", "is_stock", "is_active", "created", "updated")
-    list_filter = ("category", "is_active", "is_stock")
+    list_display = ("title", "slug", "category", "price", "stock_quantity", "is_active", "created", "updated")
+    list_filter = ("category", "is_active", "stock_quantity")
     search_fields = ("price", "title")
     raw_id_fields = ("category",)
     date_hierarchy = "created"
-    list_editable = ("is_active", "is_stock")
+    list_editable = ("is_active",)
     ordering = ("-created", "-is_active",)
     prepopulated_fields = {"slug": ("title",)}
     

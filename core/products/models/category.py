@@ -7,7 +7,7 @@ class Category(models.Model):
     Represent a category model for product model.
     """
     
-    # categorys can have subcategory
+    # categories can have subcategory
     parent = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -15,11 +15,8 @@ class Category(models.Model):
         null=True,
         blank=True
     )
-    name = models.CharField(max_length=255, db_index=True)
-    slug = models.SlugField(max_length=255, unique=True)
-
-    def get_absolute_url(self):
-        return reverse("products:category-list", args=[self.slug])
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True, db_index=True)
 
     def __str__(self):
         return self.name
@@ -30,6 +27,10 @@ class Category(models.Model):
             self.slug = slugify(self.name, allow_unicode=True)
         
         super().save(*args, **kwargs)
+    
+    def get_absolute_url(self):
+        return reverse("products:category-list", args=[self.slug])
+    
     
     class Meta:
         verbose_name_plural = "categories"

@@ -1,8 +1,8 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models import CheckConstraint, Q, F
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db.models import CheckConstraint, Q, F
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Discount(models.Model):
@@ -11,7 +11,6 @@ class Discount(models.Model):
     """
     name = models.CharField(max_length=100)
     
-    # discount percentage
     percentage = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(1),
@@ -24,10 +23,12 @@ class Discount(models.Model):
     
     is_active = models.BooleanField(default=True)
     
+    def __str__(self):
+        return self.name
+    
     @property
     def is_valid(self):
         """
-        Is discount valid.
         The discount must be active and not have expired.
         """
         now = timezone.localdate()
@@ -39,13 +40,12 @@ class Discount(models.Model):
         )
 
     def clean(self):
+        # Check end_date be after start_date
         if self.start_date >= self.end_date:
             raise ValidationError({
                 'end_date': 'End date must be after start date.'
             })
     
-    def __str__(self):
-        return self.name
     
     class Meta:
         verbose_name_plural = "Discounts"

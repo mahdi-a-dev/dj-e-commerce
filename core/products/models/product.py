@@ -1,9 +1,8 @@
 from django.db import models
 from django.urls import reverse
+from decimal import Decimal, ROUND_HALF_UP
+from django.db.models import CheckConstraint, Q
 from django.core.validators import MinValueValidator
-from django.db.models import CheckConstraint, Q, F
-from decimal import Decimal
-
 
 class ProductManager(models.Manager):
     """
@@ -20,9 +19,11 @@ class Product(models.Model):
     """
     Represent product model.
     """
+    LOW_STOCK_THRESHOLD = 5
+    
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    slug = models.SlugField(max_length=255)
+    slug = models.SlugField(max_length=255, db_index=True)
     
     main_image = models.ImageField(upload_to="products/main/")
     
@@ -47,7 +48,7 @@ class Product(models.Model):
         related_name="products"
     )
     
-    is_stock = models.BooleanField(default=True)
+    stock_quantity = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     
     created = models.DateTimeField(auto_now_add=True)
@@ -56,7 +57,24 @@ class Product(models.Model):
     # default manager
     objects = models.Manager()
     # cuscomize manager
-    products = ProductManager()
+    active = ProductManager()
+    
+    def __str__(self):
+        return self.title
+    
+    @property
+    def is_in_stock(self):
+        """
+        The availability of a product
+        """
+        return self.stock_quantity > 0
+
+    @property
+    def is_low_stock(self):
+        """
+        Checking for low stock of a product
+        """
+        return 0 < self.stock_quantity <= self.LOW_STOCK_THRESHOLD
     
     @property
     def discount_price(self):
@@ -68,9 +86,14 @@ class Product(models.Model):
         if not discount or not discount.is_valid:
             return None
         
-        percentage = discount.percentage
-
-        return self.price * (Decimal("1") - percentage / Decimal("100"))
+        discount_rate = discount.percentage / Decimal("100")
+        
+        return (
+            self.price * (Decimal("1") - discount_rate) 
+        ).quantize(
+            Decimal("1"),
+            rounding=ROUND_HALF_UP
+        )
     
     @property
     def final_price(self):
@@ -93,11 +116,8 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("products:product-detail", args=[self.slug])
-    
 
-    def __str__(self):
-        return self.title
-    
+
     class Meta:
         verbose_name_plural = "Products"
         ordering = ("-created",)
@@ -109,8 +129,8 @@ class Product(models.Model):
                 name="product_price_non_negative"
             )
         ]
-
-
+        
+        
 class ProductImage(models.Model):
     """
     Represent Product images model for product model.
@@ -130,6 +150,7 @@ class ProductImage(models.Model):
     
     def __str__(self):
         return self.alt_text
+    
     
     class Meta:
         verbose_name_plural = "Product Images"
