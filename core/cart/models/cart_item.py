@@ -16,6 +16,8 @@ class CartItem(models.Model):
     )
     quantity = models.PositiveIntegerField(default=1)
 
+    def __str__(self):
+        return f"{self.product.title} - {self.cart.user.phone_number.as_national}"
     class Meta:
         constraints = [
             models.UniqueConstraint(
