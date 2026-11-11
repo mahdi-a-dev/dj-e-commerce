@@ -12,23 +12,25 @@ class Order(models.Model):
         """
         A TextChoise class for order status
         """
-        PLACED = "placed", "Placed"
-        PROCESSING = "processing", "Processing"
-        SHIPPED = "shipped", "Shipped"
-        DELIVERED = "delivered", "Delivered"
-        CANCELED = "cancelled", "Cancelled"
+        PLACED = "placed", "ثبت شده"
+        PROCESSING = "processing", "در حال پردازش"
+        SHIPPED = "shipped", "ارسال شده"
+        DELIVERED = "delivered", "تحویل شده"
+        CANCELED = "cancelled", "لغو شده"
 
 
     user = models.ForeignKey(
         user,
         on_delete=models.PROTECT,
-        related_name="orders"
+        related_name="orders",
+        verbose_name="کاربر"
     )
     address = models.ForeignKey(
         "accounts.Address",
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name="آدرس"
     )
     
     # General order code
@@ -39,28 +41,54 @@ class Order(models.Model):
     )
     
     # َ User information at the time of placing an order
-    full_name = models.CharField(max_length=250)
-    phone_number = models.CharField(max_length=13)
+    full_name = models.CharField(max_length=250, verbose_name="نام و نام خانوادگی")
+    phone_number = models.CharField(max_length=13, verbose_name="شماره موبایل")
     
     # Address snapshot
-    shipping_province = models.CharField(max_length=100)
-    shipping_city = models.CharField(max_length=100)
-    shipping_postal_code = models.CharField(max_length=10, validators=[postal_code_validator])
-    shipping_full_address = models.TextField()
+    shipping_province = models.CharField(max_length=100, verbose_name="استان مقصد")
+    shipping_city = models.CharField(max_length=100, verbose_name="شهر مقصد")
+    shipping_postal_code = models.CharField(
+        max_length=10,
+        validators=[postal_code_validator],
+        verbose_name="آدرس پستی مقصد"
+    )
+    shipping_full_address = models.TextField(verbose_name="آدرس کامل مقصد")
     
     # Order status
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.PLACED
+        default=Status.PLACED,
+        verbose_name="وضعیت سفارش"
     )
     
     # Order amounts
     # Formula, total = subtotal - discount_amount + shipping_cost
-    subtotal = models.DecimalField(max_digits=12, decimal_places=0)
-    discount_amount = models.DecimalField(max_digits=12, decimal_places=0)
-    shipping_cost = models.DecimalField(max_digits=12, decimal_places=0)
-    total = models.DecimalField(max_digits=12, decimal_places=0)
+    subtotal = models.DecimalField(
+        max_digits=12,
+        decimal_places=0,
+        verbose_name="جمع مبلغ اقلام"
+    )
+    discount_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=0,
+        verbose_name="مبلغ تخفیف"
+    )
+    shipping_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=0,
+        verbose_name="هزینه ارسال"
+    )
+    total = models.DecimalField(
+        max_digits=12,
+        decimal_places=0,
+        verbose_name="مبلغ قابل پرداخت"
+    )
     
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    updated = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
+    
+    
+    class Meta:
+        verbose_name = "سفارش"
+        verbose_name_plural = "سفارشات"

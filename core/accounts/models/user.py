@@ -44,18 +44,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     """
     phone_number = PhoneNumberField(
         max_length=13,
-        unique=True
+        unique=True,
+        verbose_name="شماره موبایل"
     )
     
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False, verbose_name="دسترسی به پنل مدیریت")
+    is_active = models.BooleanField(default=True, verbose_name="فعال بودن")
         
     USERNAME_FIELD = "phone_number"
     
-    created_date = models.DateTimeField(auto_now_add=True)
-    updated_date = models.DateTimeField(auto_now=True)
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
     
     objects = UserManager()
     
     def __str__(self):
         return self.phone_number.as_national
+    
+    
+    class Meta:
+        verbose_name = "کاربر"
+        verbose_name_plural = "کاربران"

@@ -21,23 +21,25 @@ class Product(models.Model):
     """
     LOW_STOCK_THRESHOLD = 5
     
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    slug = models.SlugField(max_length=255, db_index=True)
+    title = models.CharField(max_length=255, verbose_name="عنوان")
+    description = models.TextField(blank=True, verbose_name="توضیحات")
+    slug = models.SlugField(max_length=255, db_index=True, verbose_name="اسلاگ")
     
-    main_image = models.ImageField(upload_to="products/main/")
+    main_image = models.ImageField(upload_to="products/main/", verbose_name="تصویر اصلی")
     
     # product category
     category = models.ForeignKey(
         "Category",
         on_delete=models.CASCADE,
-        related_name="products"
+        related_name="products",
+        verbose_name="دسته بندی"
     )
     
     price = models.DecimalField(
         max_digits=12,
         decimal_places=0,
-        validators=[MinValueValidator(0)]
+        validators=[MinValueValidator(0)],
+        verbose_name="قیمت"
     )
     # product discount
     discount = models.ForeignKey(
@@ -45,14 +47,16 @@ class Product(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="products"
+        related_name="products",
+        verbose_name="تخفیف"
+        
     )
     
-    stock_quantity = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
+    stock_quantity = models.PositiveIntegerField(default=0, verbose_name="تعداد موجودی")
+    is_active = models.BooleanField(default=True, verbose_name="فعال بودن")
     
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    updated = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
     
     # default manager
     objects = models.Manager()
@@ -119,7 +123,8 @@ class Product(models.Model):
 
 
     class Meta:
-        verbose_name_plural = "Products"
+        verbose_name = "محصول"
+        verbose_name_plural = "محصولات"
         ordering = ("-created",)
         
         # Price Validation for database level
@@ -138,14 +143,17 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="gallery_images"
+        related_name="gallery_images",
+        verbose_name="محصول"
     )
     image = models.ImageField(
-        upload_to="products/gallery/"
+        upload_to="products/gallery/",
+        verbose_name="تصویر"
     )
     alt_text = models.CharField(
         max_length=255,
-        blank=True
+        blank=True,
+        verbose_name="متن جایگزین"
     )
     
     def __str__(self):
@@ -153,5 +161,6 @@ class ProductImage(models.Model):
     
     
     class Meta:
-        verbose_name_plural = "Product Images"
+        verbose_name = "تصویر محصول"
+        verbose_name_plural = "گالری محصولات"
         

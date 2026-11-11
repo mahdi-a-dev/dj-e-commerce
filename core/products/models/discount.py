@@ -9,19 +9,23 @@ class Discount(models.Model):
     """
     Represent a discount model for product model.
     """
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name="نام")
     
     percentage = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(1),
             MaxValueValidator(100)
-        ]
+        ],
+        verbose_name="درصد"
     )
     
-    start_date = models.DateField(validators=[MinValueValidator(timezone.localdate)])
-    end_date = models.DateField()
+    start_date = models.DateField(
+        validators=[MinValueValidator(timezone.localdate)],
+        verbose_name="تاریخ شروع"
+    )
+    end_date = models.DateField(verbose_name="تاریخ پایان")
     
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name="فعال بودن")
     
     def __str__(self):
         return self.name
@@ -48,7 +52,8 @@ class Discount(models.Model):
     
     
     class Meta:
-        verbose_name_plural = "Discounts"
+        verbose_name = "تخفیف"
+        verbose_name_plural = "تخفیف ها"
         
         # percentage validation for database level
         constraints = [

@@ -5,10 +5,14 @@ from django.core.validators import RegexValidator
 user_model = get_user_model()
 postal_code_validator = RegexValidator(
     regex=r"^\d{10}$",
-    message="Postal code must contain exactly 10 digits."
-)
+    message="کد پستی باید دقیقاً شامل ۱۰ رقم باشد.")
 
 
+class AddressManager(models.Manager):
+    def get_user_addresses(self, user):
+        return self.filter(user=user)
+    
+    
 class Address(models.Model):
     """
     Address model, details about user addresses
@@ -16,21 +20,29 @@ class Address(models.Model):
     user = models.ForeignKey(
         user_model,
         on_delete=models.CASCADE,
-        related_name="addresses"
+        related_name="addresses",
+        verbose_name="کاربر"
     )
     
-    title = models.CharField(max_length=100)
-    province = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=10, validators=[postal_code_validator])
-    full_address = models.TextField()
+    title = models.CharField(max_length=100, verbose_name="عنوان")
+    province = models.CharField(max_length=100, verbose_name="استان")
+    city = models.CharField(max_length=100, verbose_name="شهر")
+    postal_code = models.CharField(
+        max_length=10,
+        validators=[postal_code_validator],
+        verbose_name="آدرس پستی"
+    )
+    full_address = models.TextField(max_length=500, verbose_name="آدرس کامل")
     
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    updated = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
+    
+    objects = AddressManager()
 
     def __str__(self):
-        return f"{self.user.phone_number} - {self.title}"
+        return self.title
     
     class Meta:
-        verbose_name_plural = "Addresses"
+        verbose_name = "آدرس"
+        verbose_name_plural = "آدرس ها"
         ordering = ("-created",)
