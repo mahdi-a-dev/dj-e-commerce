@@ -110,16 +110,9 @@ class Product(models.Model):
             return discount
         
         return self.price
-    
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            from django.utils.text import slugify
-            self.slug = slugify(self.title, allow_unicode=True)
-        
-        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("products:product-detail", args=[self.slug])
+        return reverse("products:product-detail", args=[self.pk, self.slug])
 
 
     class Meta:

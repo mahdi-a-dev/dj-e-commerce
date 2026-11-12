@@ -28,13 +28,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
     
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            from django.utils.text import slugify
-            self.slug = slugify(self.name, allow_unicode=True)
-        
-        super().save(*args, **kwargs)
-    
     def get_absolute_url(self):
         return reverse("products:category-list", args=[self.slug])
     
