@@ -3,6 +3,7 @@ from django.urls import reverse
 from decimal import Decimal, ROUND_HALF_UP
 from django.db.models import CheckConstraint, Q
 from django.core.validators import MinValueValidator
+from common.models.time_stamps import TimeStampeModel
 
 class ProductManager(models.Manager):
     """
@@ -15,7 +16,7 @@ class ProductManager(models.Manager):
         return super().get_queryset().filter(is_active=True)
     
 
-class Product(models.Model):
+class Product(TimeStampeModel):
     """
     Represent product model.
     """
@@ -54,10 +55,7 @@ class Product(models.Model):
     
     stock_quantity = models.PositiveIntegerField(default=0, verbose_name="تعداد موجودی")
     is_active = models.BooleanField(default=True, verbose_name="فعال بودن")
-    
-    created = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-    updated = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
-    
+        
     # default manager
     objects = models.Manager()
     # cuscomize manager

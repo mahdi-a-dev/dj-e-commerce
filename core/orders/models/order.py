@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from common.models.time_stamps import TimeStampeModel
 from accounts.models.address import postal_code_validator
 import uuid
 
 user = get_user_model()
 
 
-class Order(models.Model):
+class Order(TimeStampeModel):
     
     class Status(models.TextChoices):
         """
@@ -84,10 +85,7 @@ class Order(models.Model):
         decimal_places=0,
         verbose_name="مبلغ قابل پرداخت"
     )
-    
-    created = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-    updated = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
-    
+        
     
     class Meta:
         verbose_name = "سفارش"

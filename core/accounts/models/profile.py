@@ -1,11 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from common.models.time_stamps import TimeStampeModel
 
 user_model = get_user_model()
 
-class Profile(models.Model):
+class Profile(TimeStampeModel):
     """
     Profile model contains user personal details
     """
@@ -25,10 +24,7 @@ class Profile(models.Model):
         null=True,
         verbose_name="ایمیل"
     )
-    
-    created = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-    updated = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
-    
+        
     def __str__(self):
         return f"{self.user.phone_number} - {self.first_name} {self.last_name}"
     

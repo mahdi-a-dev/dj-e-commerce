@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
+from common.models.time_stamps import TimeStampeModel
 
 user_model = get_user_model()
 postal_code_validator = RegexValidator(
@@ -13,7 +14,7 @@ class AddressManager(models.Manager):
         return self.filter(user=user)
     
     
-class Address(models.Model):
+class Address(TimeStampeModel):
     """
     Address model, details about user addresses
     """
@@ -33,10 +34,7 @@ class Address(models.Model):
         verbose_name="آدرس پستی"
     )
     full_address = models.TextField(max_length=500, verbose_name="آدرس کامل")
-    
-    created = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-    updated = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
-    
+        
     objects = AddressManager()
 
     def __str__(self):
