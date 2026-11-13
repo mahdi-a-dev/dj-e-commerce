@@ -1,0 +1,13 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <p>{{ user.phone_number.as_national }}</p>
+
+    <a href="{% url 'accounts:addresses'%}">ادرس ها</a>
+    <br>
+    <a href="{% url 'accounts:edit-personal' %}">اطلاعات شخصی</a>
+    <a href="{% url 'accounts:edit-email' %}">ثبت ایمیل</a>
+{% endblock %}

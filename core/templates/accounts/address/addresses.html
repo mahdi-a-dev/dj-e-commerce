@@ -1,0 +1,29 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}addresses{% endblock %}
+
+{% block content %}
+    <h2>آدرس ها</h2>
+    {% for address in addresses %}
+        <hr>
+        <div>
+            <h3> عنوان: {{ address.title }}</h3>
+            <h4> استان: {{ address.province }}</h4>
+            <h4> شهر: {{ address.city }}</h4>
+            <h4> آدرس پستی:‌{{ address.postal_code }}</h4>
+            <h4> آدرس کامل: {{ address.full_address }}</h4>
+            <a href="{% url 'accounts:edit' pk=address.pk %}">ویرایش آدرس </a>
+            <a href="{% url 'accounts:delete' pk=address.pk %}">حذف آدرس </a>
+        </div>
+    {% empty %}
+        <div>
+        <div>📝</div>
+        <h3>هنوز آدرس ثبت نکرده‌اید.</h3>
+        </div>
+        <p>هیچ آدرسی ندارید.</p>
+        <a href="{% url 'accounts:add' %}">ثبت آدرس</a>
+    {% endfor %}
+    <hr>
+    <a href="{% url 'accounts:add' %}">ثبت آدرس جدید</a>
+{% endblock %}

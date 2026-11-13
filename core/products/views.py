@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from .models import Product, Category
 from django.views.generic import (
     ListView,
@@ -17,7 +18,7 @@ class ProductList(ListView):
     def get_queryset(self):
         search_query = self.request.GET.get("s")
         
-        products = Product.products.all()
+        products = Product.active.all()
         
         if search_query:
             return products.filter(
@@ -57,7 +58,7 @@ class ProductDetail(DetailView):
 
 # ------------------- category -------------------
 
-class CategoryProductList(ListView):
+class CategoryList(ListView):
     """
     Display all active Products for a category
     """
@@ -66,11 +67,15 @@ class CategoryProductList(ListView):
     template_name = "products/category/category_list.html"
     
     def get_queryset(self):
-        category = Category.objects.get(slug=self.kwargs["slug"])
+        category = get_object_or_404(Category, slug=self.kwargs["slug"])
         return category.products.filter(is_active=True)
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["category"] = Category.objects.get(slug=self.kwargs["slug"]) 
+        
+        query = self.get_queryset()
+        
+        context["category"] = Category.objects.get(slug=self.kwargs["slug"])
+        context["product_count"] = query.count()
         
         return context

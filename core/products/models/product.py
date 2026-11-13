@@ -112,7 +112,7 @@ class Product(models.Model):
         return self.price
 
     def get_absolute_url(self):
-        return reverse("products:product-detail", args=[self.pk, self.slug])
+        return reverse("products:detail", args=[self.pk, self.slug])
 
 
     class Meta:

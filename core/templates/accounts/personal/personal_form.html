@@ -1,0 +1,29 @@
+{% extends "base/base.html" %}
+{% block title %}{% endblock %}
+
+{% block content %}
+    <hr>
+    <div>
+        <div style="border-bottom: none; padding-bottom: 0; margin-bottom: 1.5rem;">
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div>{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div>{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div>
+                <a href="{% url 'accounts:addresses' %}" class="btn">لغو</a>
+                <button type="submit">ثبت</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
