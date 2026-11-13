@@ -1,9 +1,39 @@
 {% extends "base/base.html" %}
 {% load static %}
+{% load humanize %}
+
 {% block title %}{{ product.title }}{% endblock %}
 
 {% block content %}
-    <div class="page-header">
+    <hr>
+    {% if product.is_in_stock %}
+        {% if product.discount_price %}
+            <a>{{product.discount.percentage}}%</a> | <del>{{ product.price|intcomma:False }}</del> <strong>{{ product.final_price|intcomma:False }}</strong> تومان
+        {% else %}
+        <strong>{{ product.price|intcomma:False }}</strong>  تومان 
+        {% endif %}
+        {% if product.is_low_stock %}
+            فقط {{ product.stock_quantity }} عدد در انبار موجود است
+        {% endif %}
+        <form method="post" action="{% url 'cart:add' product_pk=product.pk %}">
+            {% csrf_token %}
+            <button type="submit">اضافه کردن به سبد خرید</button>
+        </form>
+    {% else %}
+        ناموجود
+    {% endif %}
+    <div>
+        <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
+    </div>
+    <div>
+        {% for image in product.gallery_images.all %}
+            <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" width="150" height="75">
+        {% endfor %}
+    </div>
+    <div>
+        <a href="{% url 'products:category-list' slug=product.category.slug %}">{{ product.category.name }}</a>
+    </div>
+    <div>
         {{ product.title }}
     </div>
     {{ product.description }}

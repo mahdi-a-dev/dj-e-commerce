@@ -27,10 +27,9 @@
                 <form action="{% url 'products:list' %}" method="get">
                     <input
                         type="search"
-                        name="s"
-                        class="search-input"
-                        placeholder="Search by title..."
-                        value="{{ request.GET.s }}"
+                        name="q"
+                        placeholder="جستجو"
+                        value="{{ request.GET.q }}"
                     />
                 </form>
             </div>

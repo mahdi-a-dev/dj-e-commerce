@@ -1,27 +1,48 @@
 {% extends "base/base.html" %}
 {% load static %}
+{% load humanize %}
+
 {% block title %}{{ category.name }}{% endblock %}
 
 {% block content %}
+
+    {% if category.parent %}
+        {{ category.parent.name }}
+    {% endif %}
+    <br>
     <hr>
+        کالا {{ count|intcomma:False }}
+        <form method="get">
+            {{ sort_form.ordering }}
+                <button type="submit">مرتب سازی</button>
+        </form>
+        <br>
+    {{ category_name }}
     <div class="posts-grid">
-        {% for product in products %}
-            <article class="post-card">
-                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
-                <div class="post-card-content">
-                    <h2 class="post-card-title">
-                        <a href="{% url 'products:product-detail' pk=product.pk slug=product.slug %}">{{ product.title }}</a>
+               {% for product in products %}
+            <article>
+                <div>
+                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
+   
+                    <h2>
+                        <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
                     </h2>
-                    {% if product.category %}
-                        <a href="" class="post-card-category">{{ product.category.name }}</a>
-                    {% endif %}
+                    {% if product.is_in_stock %}
+                        {% if product.discount_price %}
+                            <a>{{product.discount.percentage}}%</a> | <del>{{ product.price|intcomma:False }}</del> <strong>{{ product.final_price|intcomma:False }}</strong> تومان
+                        {% else %}
+                            <strong>{{ product.price|intcomma:False }}</strong>  تومان 
+                        {% endif %}
+                    {% else%}
+                        ناموجود
+                    {% endif%}
                 </div>
             </article>
         {% empty %}
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <div class="empty-state-icon">📝</div>
-                <h3 class="empty-state-title">No Product yet</h3>
-                <p class="empty-state-text">There are no product to display at the moment.</p>
+            <div>
+                <div>📝</div>
+                <h3>No Product yet</h3>
+                <p>There are no product to display at the moment.</p>
             </div>
         {% endfor %}
     </div>
