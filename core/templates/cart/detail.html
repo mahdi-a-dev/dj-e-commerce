@@ -1,0 +1,44 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}{% endblock %}
+
+{% block content %}
+    <a href="#">ثبت سفارش</a>
+    {% for item in cart_items %}
+        <hr>
+        <article>
+            <div>
+                <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}" width="300" height="150">   
+                <h2>
+                    <a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a>
+                </h2>
+                {% if item.product.discount_price %}
+                    <a>{{ item.product.discount.percentage }}%</a> | <del>{{ item.product.price|intcomma }}</del> <strong>{{ item.product.final_price|intcomma }}</strong> تومان
+                {% else %}
+                    <strong>{{ item.product.price|intcomma }}</strong>  تومان 
+                {% endif %}
+            </div>
+            <form method="post" action="{% url 'cart:remove' product_pk=item.product.pk %}">
+                {% csrf_token %}
+                <button type="submit">حذف از سبد خرید</button>
+            </form>
+            <form method="post" action="{% url 'cart:update-quantity' pk=item.pk %}">
+                {% csrf_token %}
+                <input 
+                    type="number"
+                    name="quantity"
+                    min="1"
+                    max="{{ item.product.stock_quantity }}",
+                    value="{{ item.quantity }}"
+                >
+                <button type="submit"> ثبت</button>
+            </form>
+        </article>
+    {% empty %}
+        <div>
+            <div>📝</div>
+            <h3>سبد خرید خالی است.</h3>
+        </div>
+    {% endfor %}
+{% endblock %}
