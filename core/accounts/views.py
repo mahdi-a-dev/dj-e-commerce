@@ -14,7 +14,7 @@ from accounts.forms import ProfileForm, AddressForm, EmailForm
 
 def account_register(request):
     if request.user.is_authenticated:
-        return redirect("products:product-list")
+        return redirect("products:list")
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -23,7 +23,7 @@ def account_register(request):
             user = form.save()
             login(request, user)
             
-            return redirect("products:product-list")
+            return redirect("products:list")
         
     else:
         form = RegisterForm()
@@ -36,7 +36,7 @@ def account_register(request):
 
 def account_login(request):
     if request.user.is_authenticated:
-        return redirect("products:product-list")
+        return redirect("products:list")
     
     if request.method == "POST":
         form = LoginForm(
@@ -48,10 +48,10 @@ def account_login(request):
             user = form.get_user()
             login(request, user)
             
-            return redirect("products:product-list")
+            return redirect("products:list")
   
     else:
-        form = LoginForm(request)
+        form = LoginForm()
     
     context = {
         "form": form
@@ -62,7 +62,7 @@ def account_login(request):
 @login_required
 def account_logout(request):
     logout(request)
-    return redirect("products:product-list")
+    return redirect("products:list")
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
