@@ -1,0 +1,131 @@
+from django.db import transaction
+from django.core.exceptions import ValidationError
+from decimal import Decimal
+from orders.models import Order, OrderItem
+from products.models import Product
+
+@transaction.atomic
+def get_user_cart(user):
+    if not user.cart:
+        raise ValidationError(
+            "You don't have shopping cart."
+        )
+    
+    return user.cart
+
+@transaction.atomic
+def validate_cart(user, cart, address):
+    if not cart.items.exists():
+        raise ValidationError(
+            "Your shopping cart is empty."
+        )
+    
+    if address.user_id != user.id:
+        raise ValidationError(
+            "The selected address does not belong to you."
+        )
+    
+    for item in cart.items.select_related("product"):
+        product = item.product
+        
+        if not product.is_active:
+            raise ValidationError(
+                f"{product.title} is not longer available."
+            )
+
+        if item.quantity <= 0:
+            raise ValidationError(
+                f"Invalid quantity for {product.title}."
+            )
+        
+        if item.quantity > product.stock_quantity:
+            raise ValidationError(
+                f"Insufficient stock for {product.title}."
+            )
+    
+    return True
+
+@transaction.atomic
+def create_order(user, cart, address):
+    full_name = f"{user.profile.first_name} {user.profile.last_name}"
+    phone_number = user.phone_number.as_national
+    
+    province = address.province
+    city = address.city
+    postal_code = address.postal_code
+    full_address = address.full_address
+    
+    subtotal = Decimal("0")
+    discount_amount = Decimal("0")
+    
+    for item in cart.items.select_related("product"):
+        product = item.product
+        
+        subtotal += product.price * item.quantity
+        discount_amount += product.discount_amount * item.quantity
+        
+    total = subtotal - discount_amount
+    
+    order = Order.objects.create(
+        user=user,
+        address=address,
+        # is user filled the profile forms?
+        full_name=full_name,
+        phone_number=phone_number,
+        
+        shipping_province=province,
+        shipping_city=city,
+        shipping_postal_code=postal_code,
+        shipping_full_address=full_address,
+        status=Order.Status.PLACED,
+        subtotal=subtotal,
+        discount_amount=discount_amount,
+        total=total
+    )
+    
+    return order
+
+@transaction.atomic
+def create_order_items(order, cart):
+    for item in cart.items.select_related("product"):
+        product = item.product
+        quantity = item.quantity
+        
+        discount_amount = product.discount_amount * quantity
+        total_price = product.final_price * quantity
+        
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            product_title=product.title,
+            unit_price=product.price,
+            quantity=quantity,
+            discount_amount=discount_amount,
+            total_price=total_price
+        )
+
+@transaction.atomic
+def update_product_stock(cart):
+    for item in cart.items.select_related("product"):
+        product = Product.objects.get(pk=item.product.pk)
+        quantity = item.quantity
+        
+        product.stock_quantity -= quantity
+        
+        product.save(update_fields=["stock_quantity"])
+    
+@transaction.atomic
+def checkout(user, address):
+    cart = get_user_cart(user)
+    
+    validate_cart(user, cart, address)
+    
+    order = create_order(user, cart, address)
+    
+    create_order_items(order, cart)
+    
+    update_product_stock(cart)
+    
+    cart.items.all().delete()
+    
+    return order

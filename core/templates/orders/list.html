@@ -1,0 +1,21 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}{% endblock %}
+
+{% block content %}
+    <h2>سفارش ها</h2>
+    {% for order in orders %}
+        <hr>
+        <div>
+            <h3><a href="{% url 'orders:detail' order_key=order.order_key %}"> اسم مشتری: {{ order.full_name }}</a></h3>
+            <h4> استان: {{ order.shipping_province }}</h4>
+        </div>
+    {% empty %}
+        <div>
+        <div>📝</div>
+        <h3>هنوز سفارشی ثبت نکرده‌اید.</h3>
+        </div>
+        <p>هیچ سفارش ندارید.</p>
+    {% endfor %}
+{% endblock %}

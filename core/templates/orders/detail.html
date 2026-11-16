@@ -1,0 +1,15 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}addresses{% endblock %}
+
+{% block content %}
+        <hr>
+        <div>
+            <h3> اسم مشتری: {{ order.full_name }}</h3>
+            <h4> استان: {{ order.shipping_province }}</h4>
+            <h4> شهر: {{ order.shipping_city }}</h4>
+            <h4> آدرس پستی:‌{{ order.shipping_postal_code }}</h4>
+            <h4> آدرس کامل: {{ order.shipping_full_address }}</h4>
+        </div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}{% endblock %}
+
+{% block content %}
+    <div>
+        <div>
+            <h4>تعداد کل کالا ({{ number_of_items }})</h4>
+            {% for item in items %}
+                <p>{{ item.product.title }}({{ item.product.price }}) * {{ item.quantity }}</p>
+            {% endfor %}
+        </div>
+        <div>
+            <h4>مجمع قیمت کالاها</h4>
+            <h5>{{ subtotal|intcomma:False }}</h5>
+
+            <h4>مجموح تخفیف</h4>
+            <h5>{{ discount_total|intcomma:False }}</h5>
+
+            <h3>مبلغ نهایی</h3>
+            <h4>{{ total|intcomma:False }}</h4>
+        </div
+    </div>
+    <hr>
+    <hr>
+    <div>
+        {% if profile.first_name and profile.last_name %}
+        <h4>اظلاعات شخصی</h4>
+        <h5>نام: {{ profile.first_name }}</h5>
+        <h5>نام خانوادگی: {{ profile.last_name }}</h5>
+        <h5>ایمیل : {{ profile.email }}</h5>
+        {% else %}
+        <h4>لطفا اطلاعات خود را تکمیل کنید.</h4>
+        <form method="post" action="{% url 'accounts:edit-personal' %}">
+            {% csrf_token %}
+            <input type="text" name="first_name">
+            <br>
+            <input type="text" name="last_name">
+            <button type="submit">ثبت</button>
+        </form>
+        {% endif %}
+    </div>
+    <hr>
+    <div>
+        {% if addresses %}
+            <form method="post" action="{% url 'orders:place-order' %}">
+                {% csrf_token %}
+                <h3>انتخاب آدرس</h3>
+                
+                {% for address in addresses %}
+                <label>
+                    {{ address.full_address }}
+                    <input
+                    type="radio"
+                    name="address"
+                    value="{{ address.pk }}"
+                    {% if forloop.first %}checked{% endif %}
+                    >
+                </label>
+                <br>
+                {% endfor %}
+                <button type="submit">ثبت آدرس</button>
+            </form>
+        {% else %}
+            <a href="{% url 'accounts:add' %}">ثبت آدرس</a>
+        {% endif %}
+        </div>
+    {% endblock %}
+    
