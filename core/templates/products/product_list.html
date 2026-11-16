@@ -3,9 +3,13 @@
 {% load humanize %}
 {% block title %}Home{% endblock %}
 {% block content %}
-
+    {% if category.parent %}
+        {{ category.parent.name }}
+    {% endif %}       
+    <br>
+    {{ category.name }}
     <div class="posts-grid">
-        کالا {{ count|intcomma:False }}
+        کالا {{ number_of_items|intcomma:False }}
         <form method="get">
             {{ sort_form.ordering }}
                 <button type="submit">مرتب سازی</button>
@@ -20,7 +24,7 @@
                         <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
                     </h2>
                     {% if product.is_in_stock %}
-                        {% if product.discount_price %}
+                        {% if product.discount_amount %}
                             <a>{{product.discount.percentage}}%</a> | <del>{{ product.price|intcomma:False }}</del> <strong>{{ product.final_price|intcomma:False }}</strong> تومان
                         {% else %}
                             <strong>{{ product.price|intcomma:False }}</strong>  تومان 
