@@ -6,10 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import Profile, Address
-from accounts.forms import ProfileForm, AddressForm, EmailForm
-
-
-# ---------------- registration ----------------
+from accounts.forms import ProfileForm, AddressForm
 
 
 def account_register(request):
@@ -69,7 +66,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/profile/profile.html"
     
 
-class EditPersonal(LoginRequiredMixin, UpdateView):
+class EditProfile(LoginRequiredMixin, UpdateView):
     model = Profile
     form_class = ProfileForm
     success_url = reverse_lazy("accounts:profile")
@@ -80,19 +77,6 @@ class EditPersonal(LoginRequiredMixin, UpdateView):
             Profile,
             user=self.request.user
         ) 
-    
-
-class EditEmail(LoginRequiredMixin, UpdateView):
-    model = Profile
-    form_class = EmailForm
-    success_url = reverse_lazy("accounts:profile")
-    template_name = "accounts/personal/personal_form.html"
-    
-    def get_object(self):
-        return get_object_or_404(
-            Profile,
-            user=self.request.user
-        )
 
 
 class UserAddresses(LoginRequiredMixin, ListView):
@@ -100,14 +84,13 @@ class UserAddresses(LoginRequiredMixin, ListView):
     context_object_name = "addresses"
     
     def get_queryset(self):
-        return Address.objects.get_user_addresses(self.request.user)
-
+        return self.request.user.addresses.all()
+    
 
 class AddAddress(LoginRequiredMixin, CreateView):
     model = Address
     form_class = AddressForm
     success_url = reverse_lazy("accounts:addresses")
-    # success_message = "Post created successfully."
     template_name = "accounts/address/address_form.html"
     
     def form_valid(self, form):
@@ -119,22 +102,16 @@ class EditAddress(LoginRequiredMixin, UpdateView):
     model = Address
     form_class = AddressForm
     success_url = reverse_lazy("accounts:addresses")
-    # success_message = "Post created successfully."
     template_name = "accounts/address/address_form.html"
     
     def get_queryset(self):  
-        return Address.objects.filter(
-            user=self.request.user
-        )
+        return self.request.user.addresses.all()
 
 
 class DeleteAddress(LoginRequiredMixin, DeleteView):
     model = Address
     success_url = reverse_lazy("accounts:addresses")
-    # success_message = "Post created successfully."
     template_name = "accounts/address/address_confirm_delete.html"
     
     def get_queryset(self):  
-        return Address.objects.filter(
-            user=self.request.user
-        )
+        return self.request.user.addresses.all()

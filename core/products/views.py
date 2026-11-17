@@ -68,7 +68,17 @@ class ProductDetail(DetailView):
     
     def get_queryset(self):
         return super().get_queryset().filter(is_active=True)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
+        user = self.request.user
+        
+        if user.cart.items.filter(product=self.object).exists():
+            context["is_in_cart"] = True
+
+        return context
+    
 
 class CategoryList(ProductList):
     """

@@ -13,16 +13,9 @@ class RegisterForm(UserCreationForm):
 
 class LoginForm(AuthenticationForm):
     username = PhoneNumberField(
-        label="Phone number",
         widget=forms.TextInput
     )
     
-    error_messages = {
-        "invalid_login": "Phone number or password is invalid."
-    }
-    
-    
-# -------------- Address Form --------------
 
 
 class AddressForm(forms.ModelForm):
@@ -35,9 +28,3 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ["first_name", "last_name"]
-
-
-class EmailForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ["email"]

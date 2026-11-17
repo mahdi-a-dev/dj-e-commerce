@@ -4,6 +4,7 @@
 {% block title %}{% endblock %}
 
 {% block content %}
+    <h2>{{ error_message }}</h2>
     <div>
         <div>
             <h4>تعداد کل کالا ({{ number_of_items }})</h4>
@@ -23,16 +24,14 @@
         </div
     </div>
     <hr>
-    <hr>
     <div>
         {% if profile.first_name and profile.last_name %}
         <h4>اظلاعات شخصی</h4>
         <h5>نام: {{ profile.first_name }}</h5>
         <h5>نام خانوادگی: {{ profile.last_name }}</h5>
-        <h5>ایمیل : {{ profile.email }}</h5>
         {% else %}
         <h4>لطفا اطلاعات خود را تکمیل کنید.</h4>
-        <form method="post" action="{% url 'accounts:edit-personal' %}">
+        <form method="post" action="{% url 'accounts:edit-profile' %}">
             {% csrf_token %}
             <input type="text" name="first_name">
             <br>

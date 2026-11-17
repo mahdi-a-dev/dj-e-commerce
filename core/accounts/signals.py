@@ -9,10 +9,16 @@ user_model = get_user_model()
 
 @receiver(post_save, sender=user_model)
 def create_user_profile(sender, instance, created, **kwargs):
+    """
+    When a user registers, a profile is created for them.
+    """
     if created:
         Profile.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=user_model)
 def create_user_cart(sender, instance, created, **kwargs):
+    """
+    When a user registers, a cart is created for them.
+    """
     if created:
         Cart.objects.get_or_create(user=instance)

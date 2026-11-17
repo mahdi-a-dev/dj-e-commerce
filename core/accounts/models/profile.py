@@ -17,16 +17,9 @@ class Profile(TimeStampeModel):
     
     first_name = models.CharField(max_length=100, verbose_name="نام")
     last_name = models.CharField(max_length=100, verbose_name="نام خانوادگی")
-    
-    email = models.EmailField(
-        max_length=200,
-        unique=True,
-        null=True,
-        verbose_name="ایمیل"
-    )
         
     def __str__(self):
-        return f"{self.user.phone_number} - {self.first_name} {self.last_name}"
+        return f"{self.first_name}-{self.last_name}"
     
     class Meta:
         verbose_name = "پروفایل‌"

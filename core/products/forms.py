@@ -2,6 +2,9 @@ from django import forms
 
 
 class ProductSortForm(forms.Form):
+    """
+    This form shows ordering choises for products
+    """
     ORDERING_CHOICES = [
         ("all", "همه"),
         ("newest", "جدید ترین"),

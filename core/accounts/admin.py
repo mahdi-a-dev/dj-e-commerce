@@ -32,7 +32,7 @@ class UserAdmin(UserAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "first_name", "last_name", "email")
+    list_display = ("user", "first_name", "last_name")
     search_fields = ("user__phone_number",)
     raw_id_fields = ("user",)
     date_hierarchy = "created"
