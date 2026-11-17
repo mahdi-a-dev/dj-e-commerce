@@ -40,7 +40,6 @@ class Address(TimeStampeModel):
     def __str__(self):
         return self.title
     
-    class Meta:
+    class Meta(TimeStampeModel.Meta):
         verbose_name = "آدرس"
         verbose_name_plural = "آدرس ها"
-        ordering = ("-created",)

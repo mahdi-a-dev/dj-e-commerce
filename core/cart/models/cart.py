@@ -16,6 +16,6 @@ class Cart(TimeStampeModel):
     def __str__(self):
         return f"Cart - ({self.user.phone_number.as_national})"
     
-    class Meta:
+    class Meta(TimeStampeModel.Meta):
         verbose_name = "سبد خرید"
         verbose_name_plural = "سبد های خرید"

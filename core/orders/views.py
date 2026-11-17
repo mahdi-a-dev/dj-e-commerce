@@ -5,13 +5,16 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import DetailView, ListView
 from accounts.models import Address
-
 from orders import services
+from django.views.decorators.http import require_POST
 
 from orders.models import Order
 
 
 class OrderList(LoginRequiredMixin, ListView):
+    """
+    List of user orders
+    """
     template_name = "orders/list.html"
     context_object_name = "orders"
     
@@ -20,10 +23,14 @@ class OrderList(LoginRequiredMixin, ListView):
     
 
 class OrderDetail(LoginRequiredMixin, DetailView):
+    """
+    Order details, contains user info, address and products details
+    """
     model = Order
     template_name = "orders/detail.html"
     
-    def get_object(self, queryset = None):
+    def get_object(self):
+        # order page find by order_key
         return get_object_or_404(Order, order_key=self.kwargs["order_key"])
         
     def get_queryset(self):  
@@ -31,6 +38,10 @@ class OrderDetail(LoginRequiredMixin, DetailView):
 
 @login_required
 def checkout(request):
+    """
+    This view show the cartItems details
+    calculate the subtotal, discount_total and total price
+    """
     user = request.user
     profile = user.profile
     addresses = user.addresses.all()
@@ -67,10 +78,10 @@ def checkout(request):
     return render(request, "orders/checkout.html", context)
 
 @login_required
+@require_POST
 def place_order(request):
-    if request.method == "POST":
-        address_id = request.POST.get("address")
-        
+    address_id = request.POST.get("address")
+    
     address = get_object_or_404(Address, id=address_id, user=request.user)
     
     order = services.checkout(request.user, address)

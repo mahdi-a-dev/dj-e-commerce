@@ -5,7 +5,9 @@
 
 {% block content %}
 <hr>
+    {% if cart_items.exists %}
     <a href="{% url 'orders:checkout' %}">تسویه حساب</a>
+    {% endif %}
     {% for item in cart_items %}
         <br>
         <article>

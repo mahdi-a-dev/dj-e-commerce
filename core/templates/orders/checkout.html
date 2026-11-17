@@ -31,13 +31,8 @@
         <h5>نام خانوادگی: {{ profile.last_name }}</h5>
         {% else %}
         <h4>لطفا اطلاعات خود را تکمیل کنید.</h4>
-        <form method="post" action="{% url 'accounts:edit-profile' %}">
-            {% csrf_token %}
-            <input type="text" name="first_name">
-            <br>
-            <input type="text" name="last_name">
-            <button type="submit">ثبت</button>
-        </form>
+        <a href="{% url 'accounts:edit-profile' %}">ثبت آدرس</a>
+
         {% endif %}
     </div>
     <hr>

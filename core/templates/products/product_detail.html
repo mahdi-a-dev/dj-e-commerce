@@ -15,10 +15,15 @@
         {% if product.is_low_stock %}
             فقط {{ product.stock_quantity }} عدد در انبار موجود است
         {% endif %}
-        <form method="post" action="{% url 'cart:add' product_pk=product.pk %}">
-            {% csrf_token %}
-            <button type="submit">اضافه کردن به سبد خرید</button>
-        </form>
+        {% if not is_in_cart %}
+            <form method="post" action="{% url 'cart:add' product_pk=product.pk %}">
+                {% csrf_token %}
+                <button type="submit">اضافه کردن به سبد خرید</button>
+            </form>
+        {% else %}
+            <p>در سبد خرید شما وجود دارد</p>
+            <a href="{% url 'cart:detail' %}">مشاهده سبد خرید</a>
+        {% endif %}
     {% else %}
         ناموجود
     {% endif %}

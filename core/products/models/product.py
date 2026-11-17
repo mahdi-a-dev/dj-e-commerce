@@ -111,10 +111,10 @@ class Product(TimeStampeModel):
     def get_absolute_url(self):
         return reverse("products:detail", args=[self.pk, self.slug])
 
-    class Meta:
+
+    class Meta(TimeStampeModel.Meta):
         verbose_name = "محصول"
         verbose_name_plural = "محصولات"
-        ordering = ("-created",)
 
         # Price Validation for database level
         constraints = [
@@ -128,7 +128,6 @@ class ProductImage(models.Model):
     """
     Represent Product images model for product model.
     """
-
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,

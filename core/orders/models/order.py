@@ -75,11 +75,6 @@ class Order(TimeStampeModel):
         decimal_places=0,
         verbose_name="مبلغ تخفیف"
     )
-    shipping_cost = models.DecimalField(
-        max_digits=12,
-        decimal_places=0,
-        verbose_name="هزینه ارسال"
-    )
     total = models.DecimalField(
         max_digits=12,
         decimal_places=0,
@@ -87,6 +82,6 @@ class Order(TimeStampeModel):
     )
         
     
-    class Meta:
+    class Meta(TimeStampeModel.Meta):
         verbose_name = "سفارش"
         verbose_name_plural = "سفارشات"

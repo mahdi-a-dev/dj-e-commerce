@@ -21,7 +21,6 @@ class Profile(TimeStampeModel):
     def __str__(self):
         return f"{self.first_name}-{self.last_name}"
     
-    class Meta:
+    class Meta(TimeStampeModel.Meta):
         verbose_name = "پروفایل‌"
         verbose_name_plural = "پروفایل‌ها"
-        ordering = ("-created",)
