@@ -13,7 +13,7 @@ class Order(TimeStampeModel):
         """
         A TextChoise class for order status
         """
-        PLACED = "placed", "ثبت شده"
+        PENDING_PAYMENT = "pending_payment", "در انتظار پرداخت"
         PROCESSING = "processing", "در حال پردازش"
         SHIPPED = "shipped", "ارسال شده"
         DELIVERED = "delivered", "تحویل شده"
@@ -59,12 +59,10 @@ class Order(TimeStampeModel):
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.PLACED,
+        default=Status.PENDING_PAYMENT,
         verbose_name="وضعیت سفارش"
     )
     
-    # Order amounts
-    # Formula, total = subtotal - discount_amount + shipping_cost
     subtotal = models.DecimalField(
         max_digits=12,
         decimal_places=0,
@@ -81,6 +79,9 @@ class Order(TimeStampeModel):
         verbose_name="مبلغ قابل پرداخت"
     )
         
+    def __str__(self):
+        return f"ORDER-{self.id}"
+    
     
     class Meta(TimeStampeModel.Meta):
         verbose_name = "سفارش"

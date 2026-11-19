@@ -38,7 +38,10 @@ class OrderItem(models.Model):
         verbose_name="قیمت کل"
     )
     
+    def __str__(self):
+        return f"OrderItem-({self.product_title})"
     
+
     class Meta:
         verbose_name = "قلم سفارش"
         verbose_name_plural = "اقلام سفارش"

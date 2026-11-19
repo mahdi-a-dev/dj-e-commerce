@@ -28,6 +28,8 @@ class ProductList(ListView):
                 Q(category__name__icontains=search_query)
             )
         
+        ordering = "all"
+        
         self.sort_form = ProductSortForm(self.request.GET)
         
         if self.sort_form.is_valid():
@@ -74,8 +76,8 @@ class ProductDetail(DetailView):
 
         user = self.request.user
         
-        if user.cart.items.filter(product=self.object).exists():
-            context["is_in_cart"] = True
+        if user.is_authenticated:
+            context["is_in_cart"] = user.cart.items.filter(product=self.object).exists()
 
         return context
     

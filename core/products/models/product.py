@@ -88,7 +88,7 @@ class Product(TimeStampeModel):
         discount = self.discount
 
         if not discount or not discount.is_valid:
-            return None
+            return Decimal("0")
 
         discount_rate = discount.percentage / Decimal("100")
 

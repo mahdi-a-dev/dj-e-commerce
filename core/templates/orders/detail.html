@@ -4,12 +4,39 @@
 {% block title %}addresses{% endblock %}
 
 {% block content %}
+    <div>
+        <h3>اطلاعات شما:</h3>
+        <h4> اسم مشتری: {{ order.full_name }}</h4>
+        <h4> شماره: {{ order.phone_number }}</h4>
+    </div>
+    <hr>
+    <div>
+        <h3> اطلاعات آدرس:</h3>
+        <h4> استان: {{ order.shipping_province }}</h4>
+        <h4> شهر: {{ order.shipping_city }}</h4>
+        <h4> آدرس پستی:‌{{ order.shipping_postal_code }}</h4>
+        <h4> آدرس کامل: {{ order.shipping_full_address }}</h4>
+    </div>
+    <hr>
+    <div>
+        <h3>اطلاعات خرید:</h3>
+        {% for item in order.items.all %}
+            <h4>کالا: {{ item.product_title }}</h4>
+            <h4>تعداد: {{ item.quantity }}</h4>
+            <h4>مبلغ کالا:‌ {{ item.unit_price }}</h4>
+            <h4>مبلغ تخفیف: {{ item.discount_amount }}</h4>
+            <h4>مبلغ کل: {{ item.total_price }}</h4>
+            <br>
+        {% endfor %}
         <hr>
-        <div>
-            <h3> اسم مشتری: {{ order.full_name }}</h3>
-            <h4> استان: {{ order.shipping_province }}</h4>
-            <h4> شهر: {{ order.shipping_city }}</h4>
-            <h4> آدرس پستی:‌{{ order.shipping_postal_code }}</h4>
-            <h4> آدرس کامل: {{ order.shipping_full_address }}</h4>
-        </div>
+        <h3><b>وضعیت سفارش: {{ order.get_status_display }}</b></h3>
+        <h3>قیمت کل کالا ها: {{ order.subtotal }}</h3>
+        <h3>قیمت کل تخفیف ها: {{ order.discount_amount }}</h3>
+        <h3>قیمت کل:‌ {{ order.total }}</h3>
+    </div>
+    <hr>
+    <form method="post" action="{% url 'payment:page' order_key=order.order_key %}">
+        {% csrf_token %}
+        <button type="submit">پرداخت</button>
+    </form>
 {% endblock %}

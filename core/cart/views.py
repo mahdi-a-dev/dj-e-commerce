@@ -35,7 +35,11 @@ class RemoveItem(LoginRequiredMixin, View):
 
 class UpdateQuantity(LoginRequiredMixin, View):
     def post(self, request, pk):
-        cart_item = CartItem.objects.get(pk=pk)
+        cart_item = get_object_or_404(
+            CartItem,
+            pk=pk,
+            cart__user=request.user
+        )
         
         quantity = int(request.POST.get("quantity"))
         update_cart_item_quantity(cart_item, quantity)
