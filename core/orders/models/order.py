@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from common.models.time_stamps import TimeStampeModel
+from django.utils import timezone
 from accounts.models.address import postal_code_validator
 import uuid
 
@@ -63,6 +64,8 @@ class Order(TimeStampeModel):
         verbose_name="وضعیت سفارش"
     )
     
+    expired = models.DateTimeField(verbose_name="تاریخ انقضاء")
+    
     subtotal = models.DecimalField(
         max_digits=12,
         decimal_places=0,
@@ -81,6 +84,10 @@ class Order(TimeStampeModel):
         
     def __str__(self):
         return f"ORDER-{self.id}"
+    
+    @property
+    def is_expired(self):
+        return self.expired <= timezone.now()
     
     
     class Meta(TimeStampeModel.Meta):

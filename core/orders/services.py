@@ -3,6 +3,10 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal
 from orders.models import Order, OrderItem
 from products.models import Product
+from django.utils import timezone
+
+from datetime import timedelta
+
 
 @transaction.atomic
 def get_user_cart(user):
@@ -74,6 +78,8 @@ def create_order(user, cart, address):
     postal_code = address.postal_code
     full_address = address.full_address
     
+    expired = timezone.now() + timedelta(minutes=15)
+    
     subtotal = Decimal("0")
     discount_amount = Decimal("0")
     
@@ -97,7 +103,8 @@ def create_order(user, cart, address):
         shipping_postal_code=postal_code,
         shipping_full_address=full_address,
         
-        status=Order.Status.PLACED,
+        status=Order.Status.PENDING_PAYMENT,
+        expired=expired,
         subtotal=subtotal,
         discount_amount=discount_amount,
         total=total
@@ -169,3 +176,12 @@ def checkout(user, address):
     cart.items.all().delete()
     
     return order
+
+
+def cancel_expireds():
+    orders = Order.objects.filter(expired__lt=timezone.now())
+    
+    for order in orders:
+        order.status = Order.Status.CANCELED
+        
+        order.save(update_fields=["status"])
