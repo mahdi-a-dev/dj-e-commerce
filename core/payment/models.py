@@ -1,5 +1,7 @@
 from django.db import models
 from common.models.time_stamps import TimeStampeModel
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Payment(TimeStampeModel):
@@ -28,8 +30,19 @@ class Payment(TimeStampeModel):
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
-        default=Status.PENDING
+        default=Status.PENDING,
+        verbose_name="وضعبت"
     )
+    
+    expired = models.DateTimeField(verbose_name="انقضاء")
+    
+    def __str__(self):
+        return f"Payment-{self.id}"
+    
+    @property
+    def is_expired(self):
+        return self.expired < timezone.now()
+    
     
     class Meta(TimeStampeModel.Meta):
         verbose_name = "پرداخت"

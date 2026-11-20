@@ -35,8 +35,8 @@
         <h3>قیمت کل:‌ {{ order.total }}</h3>
     </div>
     <hr>
-    <form method="post" action="{% url 'payment:page' order_key=order.order_key %}">
-        {% csrf_token %}
-        <button type="submit">پرداخت</button>
-    </form>
+    {% for message in messages %}
+        {{ message}}
+    {% endfor %}
+    <a href="{% url 'payment:page' order_key=order.order_key %}">پرداخت</a>
 {% endblock %}
