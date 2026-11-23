@@ -5,6 +5,7 @@ from orders.models import Order, OrderItem
 from products.models import Product
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import F
 
 ORDER_DURATION = 15
 
@@ -190,7 +191,26 @@ def checkout(user, address):
     
     return order
 
+@transaction.atomic
+def cancel_order(order):
+    order = Order.objects.select_for_update().get(pk=order.pk)
+    
+    if order.status != Order.Status.PENDING_PAYMENT:
+        raise ValidationError(
+            "امکان لغو این سفارش وجود ندارد."
+        )
+        
+    for item in order.items.select_related("product"):
+        Product.objects.filter(
+            pk=item.product_id
+        ).update(
+            stock_quantity=F("stock_quantity") + item.quantity
+        )
+        
+    order.status = Order.Status.CANCELED
+    order.save(update_fields=["status"])
 
+@transaction.atomic
 def cancel_expireds():
     """
     Changes the status of PENDING_PAYMENT orders that have passed their due time to "cancelled." 
@@ -198,6 +218,8 @@ def cancel_expireds():
     orders = Order.objects.filter(status=Order.Status.PENDING_PAYMENT, expired__lt=timezone.now())
     
     for order in orders:
+        cancel_order(order)
+        
         order.status = Order.Status.CANCELED
         
         order.save(update_fields=["status"])
