@@ -1,5 +1,4 @@
-from django.shortcuts import render, get_object_or_404
-from orders.models import Order
+from django.shortcuts import render
 from payment import services
 from payment.forms import PaymentStatusForm
 from payment.providers.mock.mock_provider import mock_provider
@@ -10,20 +9,31 @@ from django.shortcuts import redirect
 
 @login_required
 def payment_page(request, order_key):
+    """
+    Display the payment page and process a payment attempt.
+    
+    GET:
+        initiate or reuse a pending payment attempt.
+    
+    POST:
+        Validate the form, process the provider result and complete the payment attempt.
+    """
     user = request.user
     
+    # Get request
     if request.method == "GET":
         try:
             payment = services.initiate_payment(user, order_key)
             
         except ValidationError as exc:
-            messages.error(request, exc.message[0])
-            return redirect("orders:detail", order_key=order_key)
+            for error in exc.messages:
+                messages.error(request, error)
         
         form = PaymentStatusForm(
                 initial={"payment_id": payment.pk}
         )
-        
+    
+    # Post request
     else:
         form = PaymentStatusForm(request.POST)
         
@@ -44,7 +54,8 @@ def payment_page(request, order_key):
                 form.add_error(None, exc)
             
             else:
-                redirect("orders:deail", order_key=order_key)
+                
+                return redirect("orders:detail", order_key=order_key)
         
         payment_id = (
             form.cleaned_data.get("payment_id")

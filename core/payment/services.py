@@ -4,10 +4,18 @@ from payment.models import Payment
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import timedelta
+from orders.services import cancel_order
 
 PAYMENT_DURATION = 5
 
 def get_user_order(user, order_key):
+    """
+    Return user's order.
+    
+    Raises:
+        ValidationError: If the order status is not PENDING_PAYMENT
+        or the expired date has passed.
+    """
     order = Order.objects.select_for_update().get(
         user=user,
         order_key=order_key
@@ -15,17 +23,20 @@ def get_user_order(user, order_key):
     
     if order.status != Order.Status.PENDING_PAYMENT:
         raise ValidationError(
-            "This order is not available to payment."
+            "این سفارش قابل پرداخت نیست."
         )
     
     if order.expired <= timezone.now():
         raise ValidationError(
-            "The order has expired."
+            "سفارش منقضی شده است."
         )
     
     return order
 
 def get_payment_for_form(user, order_key, payment_id):
+    """
+    Retrieve a payment for displaying its information in the payment form
+    """
     return Payment.objects.get(
         pk=payment_id,
         order__user=user,
@@ -34,6 +45,12 @@ def get_payment_for_form(user, order_key, payment_id):
     
 @transaction.atomic
 def initiate_payment(user, order_key):
+    """
+    Create new payment attempt or reuse an existing valid one.
+    
+    Raises:
+        ValidationError: If Order has already successful payment.
+    """
     order = get_user_order(user, order_key)
     
     payment = order.payments
@@ -41,7 +58,7 @@ def initiate_payment(user, order_key):
     
     if payment.filter(status=Payment.Status.SUCCESS).exists():
         raise ValidationError(
-            "This order already have a successfull payment."
+            "این سفارش قبلاً با موفقیت پرداخت شده است."
         )
     
     pending_payments = (
@@ -56,7 +73,9 @@ def initiate_payment(user, order_key):
         if payment.expired > now:
             return payment
         
+        cancel_order(order)
         payment.status = Payment.Status.CANCELED
+        payment.save(update_fields=["status"])
 
     
     return Payment.objects.create(
@@ -68,6 +87,16 @@ def initiate_payment(user, order_key):
 
 @transaction.atomic
 def complete_payment(user, order_key, payment_id, provider_status):
+    """
+    Complete a payment attempt using the result returend by the provider.
+    
+    Raises:
+        ValidationError: If the payment does not exists.
+        ValidationError: If the payment already been proccessed.
+        ValidationError: If the provider result is invalid.
+    """
+    
+    # get user payments
     payment_info = (
         Payment.objects.filter(
             pk=payment_id,
@@ -79,7 +108,7 @@ def complete_payment(user, order_key, payment_id, provider_status):
     )
     
     if payment_info is None:
-        raise ValidationError("Payment was not found.")
+        raise ValidationError("پرداخت یافت نشد.")
     
     order = Order.objects.select_for_update().get(
         pk=payment_info["order_id"]
@@ -92,7 +121,7 @@ def complete_payment(user, order_key, payment_id, provider_status):
     
     if payment.status != Payment.Status.PENDING:
         raise ValidationError(
-            "This payment has already been processed."
+            "این پرداخت قبلاً پردازش شده است."
         )
     
     if provider_status not in (
@@ -100,7 +129,7 @@ def complete_payment(user, order_key, payment_id, provider_status):
         Payment.Status.FAILED
     ):
         raise ValidationError(
-            "Invalid provider result."
+            "نتیجه ارائه‌دهنده نامعتبر است."
         )
     
     now = timezone.now()
@@ -114,6 +143,8 @@ def complete_payment(user, order_key, payment_id, provider_status):
     if order.expired and order.expired <= now:
         payment.status = Payment.Status.CANCELED
         payment.save(update_fields=["status"])
+        
+        cancel_order(order)
         
         order.status = Order.Status.CANCELED
         order.save(update_fields=["status"])
@@ -133,7 +164,7 @@ def complete_payment(user, order_key, payment_id, provider_status):
         
         if another_success:
             raise ValidationError(
-                "This order already has a successfull payment."
+                "این سفارش قبلاً پرداخت موفقی داشته است."
             )
             
         payment.status = Payment.Status.SUCCESS
@@ -150,10 +181,16 @@ def complete_payment(user, order_key, payment_id, provider_status):
 
 @transaction.atomic
 def cancel_expireds():
-    payments = Payment.objects.filter(status=Payment.Status.PENDING, expired__lt=timezone.now())
+    """
+    Cancel expired pending payment attempts.
+    """
+    now = timezone.now()
     
-    for payment in payments:
-        payment.status = Payment.Status.CANCELED
-        
-        payment.save(update_fields=["status"])
+    Payment.objects.filter(
+        status=Payment.Status.PENDING,
+        expired__lt=now
+    ).update(
+        status=Payment.Status.CANCELED
+    )
+    
         
