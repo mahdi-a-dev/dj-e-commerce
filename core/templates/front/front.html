@@ -1,0 +1,57 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}{% endblock %}
+{% block content %}
+    <div class="posts-grid">
+        کالا {{ number_of_items|intcomma:False }}
+        <form method="get">
+            {{ sort_form.ordering }}
+                <button type="submit">مرتب سازی</button>
+        </form>
+        <h2>جدید ترین محصول ها</h2>
+        {% for product in products %}
+            <hr>
+            <article>
+                <div>
+                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
+   
+                    <h2>
+                        <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
+                    </h2>
+                    {% if product.is_in_stock %}
+                        {% include "products/product_price.html" with product=product only %}
+                        {% else %}
+                             ناموجود
+                        {% endif %}
+                </div>
+            </article>
+        {% endfor %}
+            <hr>
+            <h2>آخرین تخفیف ها</h2>
+        {% for product in latest_discounted_products %}
+            <hr>
+            <article>
+                <div>
+                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
+   
+                    <h2>
+                        <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
+                    </h2>
+                    {% if product.is_in_stock %}
+                        {% include "products/product_price.html" with product=product only %}
+                        {% else %}
+                             ناموجود
+                        {% endif %}
+                </div>
+            </article>        
+        {% endfor %}
+        <hr>
+        <h2>دسته بندی ها</h2>
+        {% for category in main_categories %}
+            <h3>
+                <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+            </h3>
+        {% endfor %}
+    </div>
+{% endblock %}

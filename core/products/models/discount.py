@@ -3,9 +3,10 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import CheckConstraint, Q, F
 from django.core.validators import MinValueValidator, MaxValueValidator
+from common.models.time_stamps import TimeStampeModel
 
 
-class Discount(models.Model):
+class Discount(TimeStampeModel):
     """
     Represent a discount model for product model.
     """
@@ -40,7 +41,7 @@ class Discount(models.Model):
         if self.start_date >= self.end_date:
             raise ValidationError({"end_date": "End date must be after start date."})
 
-    class Meta:
+    class Meta(TimeStampeModel.Meta):
         verbose_name = "تخفیف"
         verbose_name_plural = "تخفیف ها"
 
