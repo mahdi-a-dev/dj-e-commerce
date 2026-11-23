@@ -6,14 +6,15 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import DetailView, ListView
 from accounts.models import Address
 from orders import services
-from django.views.decorators.http import require_POST
-
+from django.views.decorators.http import require_POST, require_GET
+from django.core.exceptions import ValidationError
 from orders.models import Order
+from django.contrib import messages
 
 
 class OrderList(LoginRequiredMixin, ListView):
     """
-    List of user orders
+    List of authenticated user's orders.
     """
     template_name = "orders/list.html"
     context_object_name = "orders"
@@ -24,23 +25,28 @@ class OrderList(LoginRequiredMixin, ListView):
 
 class OrderDetail(LoginRequiredMixin, DetailView):
     """
-    Order details, contains user info, address and products details
+    Details of a specific order for an authenticated user.
     """
     model = Order
     template_name = "orders/detail.html"
     
     def get_object(self):
         # order page find by order_key
-        return get_object_or_404(Order, order_key=self.kwargs["order_key"])
+        return get_object_or_404(
+            Order,
+            order_key=self.kwargs["order_key"]
+        )
         
     def get_queryset(self):  
-        return self.request.user.orders.all()
+        return self.request.user.orders.prefetch_related("items")
 
 @login_required
+@require_GET
 def checkout(request):
     """
-    This view show the cartItems details
-    calculate the subtotal, discount_total and total price
+    Displaying order details before placement.
+    
+    Calculating the number of items and the order total, and displaying them.
     """
     user = request.user
     profile = user.profile
@@ -80,11 +86,19 @@ def checkout(request):
 @login_required
 @require_POST
 def place_order(request):
+    """
+    Checking the user's address and creating an order.
+    """
     address_id = request.POST.get("address")
     
     address = get_object_or_404(Address, id=address_id, user=request.user)
     
-    order = services.checkout(request.user, address)
+    try:
+        order = services.checkout(request.user, address)
+        
+    except ValidationError as exc:
+        for error in exc.messages:
+            messages.error(request, error)
     
-    return redirect("orders:detail", order.order_key)
+    return redirect("payment:page", order.order_key)
     
