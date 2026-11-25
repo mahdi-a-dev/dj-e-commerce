@@ -1,49 +1,50 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}فروشگاه{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body dir="rtl">
-    <header>
-        <nav>
-            <div>
-                <a href="{% url 'products:list' %}"><h1>فروشگاه</h1></a>
-            </div>
-            {% if user.is_authenticated %}
-                <a href="{% url 'accounts:logout' %}">خروج</a>
-                <a href="{% url 'accounts:profile' %}">پروفایل</a>
-                <a href="{% url 'cart:detail' %}">سبد خرید</a>
+<body>
+    <header class="site-header">
+        <nav class="container nav-wrapper">
+            <a href="{% url 'storefront:front' %}" class="brand">فروشگاه</a>
+
+            <div class="nav-actions">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:logout' %}">خروج</a>
+                    <a href="{% url 'accounts:profile' %}">پروفایل</a>
+                    <a href="{% url 'cart:detail' %}">سبد خرید</a>
                 {% else %}
-            <div>
-                <a href="{% url 'accounts:register' %}">ثبت نام</a>
-                <a href="{% url 'accounts:login' %}">ورود</a>
+                    <a href="{% url 'accounts:register' %}">ثبت نام</a>
+                    <a href="{% url 'accounts:login' %}">ورود</a>
+                {% endif %}
             </div>
-            {% endif %}
-            <div>
-                <form action="{% url 'products:list' %}" method="get">
-                    <input
-                        type="search"
-                        name="q"
-                        placeholder="جستجو"
-                        value="{{ request.GET.q }}"
-                    />
-                </form>
-            </div>
+
+            <form action="{% url 'products:list' %}" method="get" class="search-form">
+                <input
+                    type="search"
+                    name="q"
+                    placeholder="جستجو در محصولات..."
+                    value="{{ request.GET.q }}"
+                />
+            </form>
         </nav>
     </header>
 
-    <main class="main-content">
-        <div>
+    <main>
+        <div class="container">
             {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {% endfor %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div>{{ message }}</div>
+                    {% endfor %}
+                </div>
             {% endif %}
-            {% block content%}{% endblock %}
+            {% block content %}{% endblock %}
         </div>
     </main>
     {% block extra_js %}{% endblock %}

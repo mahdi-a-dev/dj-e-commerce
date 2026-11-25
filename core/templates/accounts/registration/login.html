@@ -1,10 +1,11 @@
 {% extends "base/base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}ورود{% endblock %}
 
 {% block content %}
+<div class="container">
     <div class="form-card">
-        <div class="page-header" style="border-bottom: none; padding-bottom: 0; margin-bottom: 1.5rem;">
-            <h1 class="page-title" style="font-size: 1.75rem;">Login</h1>
+        <div class="page-header">
+            <h1 class="page-title">ورود به حساب کاربری</h1>
         </div>
         <form method="post">
             {% csrf_token %}
@@ -17,7 +18,8 @@
                     {% endif %}
                 </div>
             {% endfor %}
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Login</button>
+            <button type="submit" class="btn btn-full" style="margin-top:0.5rem;">ورود</button>
         </form>
     </div>
+</div>
 {% endblock %}

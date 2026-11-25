@@ -5,41 +5,55 @@
 {% block title %}{{ product.title }}{% endblock %}
 
 {% block content %}
-    <hr>
-    {% if product.is_in_stock %}
-        {% if product.discount_price %}
-            <a>{{product.discount.percentage}}%</a> | <del>{{ product.price|intcomma:False }}</del> <strong>{{ product.final_price|intcomma:False }}</strong> تومان
-        {% else %}
-        <strong>{{ product.price|intcomma:False }}</strong>  تومان 
-        {% endif %}
-        {% if product.is_low_stock %}
-            فقط {{ product.stock_quantity }} عدد در انبار موجود است
-        {% endif %}
-        {% if not is_in_cart %}
-            <form method="post" action="{% url 'cart:add' product_pk=product.pk %}">
-                {% csrf_token %}
-                <button type="submit">اضافه کردن به سبد خرید</button>
-            </form>
-        {% else %}
-            <p>در سبد خرید شما وجود دارد</p>
-            <a href="{% url 'cart:detail' %}">مشاهده سبد خرید</a>
-        {% endif %}
-    {% else %}
-        ناموجود
-    {% endif %}
-    <div>
-        <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
+    <div class="container">
+        <div class="product-detail">
+            <div class="product-images">
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="main-image">
+                <div class="gallery-thumbs">
+                    {% for image in product.gallery_images.all %}
+                        <img src="{{ image.image.url }}" alt="{{ image.alt_text }}">
+                    {% empty %}
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="product-info">
+                {% if product.is_in_stock %}
+                    <div class="price">
+                        {% include "products/product_price.html" with product=product only %}
+                    </div>
+                    {% if product.is_low_stock %}
+                        <div class="stock stock-low">
+                            فقط {{ product.stock_quantity }} عدد در انبار باقی مانده است
+                        </div>
+                    {% else %}
+                        <div class="stock stock-in">
+                            موجود در انبار
+                        </div>
+                    {% endif %}
+                    {% if not is_in_cart %}
+                        <form method="post" action="{% url 'cart:add' product_pk=product.pk %}" class="add-to-cart-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-full">اضافه کردن به سبد خرید</button>
+                        </form>
+                    {% else %}
+                        <p class="stock stock-in">این محصول در سبد خرید شما وجود دارد</p>
+                        <a href="{% url 'cart:detail' %}" class="btn btn-outline btn-full">مشاهده سبد خرید</a>
+                    {% endif %}
+                {% else %}
+                    <div class="price out-of-stock">ناموجود</div>
+                {% endif %}
+
+                <a href="{% url 'products:category-list' slug=product.category.slug %}" class="category-link">
+                    دسته بندی: {{ product.category.name }}
+                </a>
+
+                <h1>{{ product.title }}</h1>
+
+                {% if product.description %}
+                    <div class="description">{{ product.description }}</div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    <div>
-        {% for image in product.gallery_images.all %}
-            <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" width="150" height="75">
-        {% endfor %}
-    </div>
-    <div>
-        <a href="{% url 'products:category-list' slug=product.category.slug %}">{{ product.category.name }}</a>
-    </div>
-    <div>
-        {{ product.title }}
-    </div>
-    {{ product.description }}
 {% endblock %}

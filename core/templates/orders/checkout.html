@@ -1,64 +1,76 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}{% endblock %}
+{% block title %}تسویه حساب{% endblock %}
 
 {% block content %}
-    <h2>{{ error_message }}</h2>
-    <div>
-        <div>
-            <h4>تعداد کل کالا ({{ number_of_items }})</h4>
-            {% for item in items %}
-                <p>{{ item.product.title }}({{ item.product.price }}) * {{ item.quantity }}</p>
-            {% endfor %}
+<div class="container">
+    {% if error_message %}
+        <div class="card" style="border-color:#fee2e2; background:#fef2f2;">
+            <h2 style="color:#991b1b; font-size:1rem;">{{ error_message }}</h2>
         </div>
+    {% endif %}
+
+    <div class="checkout-grid">
         <div>
-            <h4>مجمع قیمت کالاها</h4>
-            <h5>{{ subtotal|intcomma:False }}</h5>
-
-            <h4>مجموح تخفیف</h4>
-            <h5>{{ discount_total|intcomma:False }}</h5>
-
-            <h3>مبلغ نهایی</h3>
-            <h4>{{ total|intcomma:False }}</h4>
-        </div
-    </div>
-    <hr>
-    <div>
-        {% if profile.first_name and profile.last_name %}
-        <h4>اظلاعات شخصی</h4>
-        <h5>نام: {{ profile.first_name }}</h5>
-        <h5>نام خانوادگی: {{ profile.last_name }}</h5>
-        {% else %}
-        <h4>لطفا اطلاعات خود را تکمیل کنید.</h4>
-        <a href="{% url 'accounts:edit-profile' %}">ثبت آدرس</a>
-
-        {% endif %}
-    </div>
-    <hr>
-    <div>
-        {% if addresses %}
-            <form method="post" action="{% url 'orders:place-order' %}">
-                {% csrf_token %}
-                <h3>انتخاب آدرس</h3>
-                
-                {% for address in addresses %}
-                <label>
-                    {{ address.full_address }}
-                    <input
-                    type="radio"
-                    name="address"
-                    value="{{ address.pk }}"
-                    {% if forloop.first %}checked{% endif %}
-                    >
-                </label>
-                <br>
+            <div class="order-items-list">
+                <h3>کل سبد خرید ({{ number_of_items }})</h3>
+                {% for item in items %}
+                    <div class="order-item-row">
+                        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}">
+                        <div class="order-item-row-info">
+                            <div class="order-item-row-title">{{ item.product.title }}</div>
+                            <div class="order-item-row-meta">تعداد {{ item.quantity }}</div>
+                        </div>
+                    </div>
                 {% endfor %}
-                <button type="submit">ثبت آدرس</button>
-            </form>
-        {% else %}
-            <a href="{% url 'accounts:add' %}">ثبت آدرس</a>
-        {% endif %}
+            </div>
+
+            <hr style="margin:1.5rem 0; border:none; border-top:1px solid var(--color-border);">
+
+            <div class="checkout-summary">
+                <h4>مجمع قیمت کالاها</h4>
+                <h5>{{ subtotal|intcomma:False }} تومان</h5>
+
+                <h4>مجموع تخفیف</h4>
+                <h5>{{ discount_total|intcomma:False }} تومان</h5>
+
+                <span class="final">مبلغ نهایی {{ total|intcomma:False }} تومان</span>
+            </div>
         </div>
-    {% endblock %}
-    
+
+        <div class="card">
+            <h3>اطلاعات شخصی</h3>
+            {% if profile.first_name and profile.last_name %}
+                <p>نام: {{ profile.first_name }}</p>
+                <p>نام خانوادگی: {{ profile.last_name }}</p>
+            {% else %}
+                <p style="color:var(--color-warning);">لطفا اطلاعات شخصی خود را تکمیل کنید.</p>
+                <a href="{% url 'accounts:edit-profile' %}" class="btn btn-outline btn-full">ثبت اطلاعات شخصی</a>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>انتخاب آدرس</h3>
+            {% if addresses %}
+                <form method="post" action="{% url 'orders:place-order' %}">
+                    {% csrf_token %}
+                    {% for address in addresses %}
+                    <label style="display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:0.75rem; cursor:pointer; padding:0.75rem; border:1px solid var(--color-border); border-radius:var(--radius); transition:background var(--transition);">
+                        <input type="radio" name="address" value="{{ address.pk }}" {% if forloop.first %}checked{% endif %} style="margin-top:0.15rem;">
+                        <div>
+                            <div style="font-weight:600; color:var(--color-text);">{{ address.title }}</div>
+                            <div style="font-size:0.9rem; color:var(--color-text-muted);">{{ address.full_address }}</div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-full" style="margin-top:1rem;">ثبت سفارش</button>
+                </form>
+            {% else %}
+                <p style="color:var(--color-warning);">هنوز آدرسی ثبت نکرده‌اید.</p>
+                <a href="{% url 'accounts:add' %}" class="btn btn-outline btn-full">ثبت آدرس جدید</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

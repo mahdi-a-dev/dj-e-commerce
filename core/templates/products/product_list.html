@@ -1,61 +1,64 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}Home{% endblock %}
+{% block title %}{{ category.name }}{% endblock %}
 {% block content %}
-    {% if category.parent %}
-        {{ category.parent.name }}
-    {% endif %}       
-    <br>
-    {{ category.name }}
-    <div class="posts-grid">
-        کالا {{ number_of_items|intcomma:False }}
-        <form method="get">
+    <div class="container">
+        {% if category %}
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                {% if category.parent %}
+                    <a href="{{ category.parent.get_absolute_url }}" class="page-subtitle">{{ category.parent.name }}</a>
+                    <span style="color:var(--color-text-light);">/</span>
+                {% endif %}
+                <h1 class="page-title">{{ category.name }}</h1>
+            </div>
+        {% else %}
+            <h1 class="page-title">همه محصولات</h1>
+        {% endif %}
+
+        <form method="get" class="form-group" style="display:inline-flex; align-items:center; gap:0.5rem; margin-bottom:1.5rem;">
             {{ sort_form.ordering }}
-                <button type="submit">مرتب سازی</button>
+            <button type="submit" class="btn btn-sm">مرتب سازی</button>
         </form>
-        {% for product in products %}
-            <hr>
-            <article>
-                <div>
-                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
-   
+
+        <div class="posts-grid">
+            {% for product in products %}
+                <article class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                    </div>
                     <h2>
                         <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
                     </h2>
                     {% if product.is_in_stock %}
-                        {% if product.discount_amount %}
-                            <a>{{product.discount.percentage}}%</a> | <del>{{ product.price|intcomma:False }}</del> <strong>{{ product.final_price|intcomma:False }}</strong> تومان
-                        {% else %}
-                            <strong>{{ product.price|intcomma:False }}</strong>  تومان 
-                        {% endif %}
-                    {% else%}
-                        ناموجود
-                    {% endif%}
+                        {% include "products/product_price.html" with product=product only %}
+                    {% else %}
+                        <div class="out-of-stock">ناموجود</div>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <span class="emoji">📦</span>
+                    <h3>محصولی یافت نشد.</h3>
+                    <p>در حال حاضر محصولی برای نمایش وجود ندارد.</p>
                 </div>
-            </article>
-        {% empty %}
-            <div>
-                <div>📝</div>
-                <h3>No Product yet</h3>
-                <p>There are no product to display at the moment.</p>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+        <nav class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.ordering %}&ordering={{ request.GET.ordering }}{% endif %}" class="pagination-link">&laquo; اولین</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.ordering %}&ordering={{ request.GET.ordering }}{% endif %}" class="pagination-link">قبلی</a>
+            {% endif %}
+
+            <span class="pagination-current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.ordering %}&ordering={{ request.GET.ordering }}{% endif %}" class="pagination-link">بعدی</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.ordering %}&ordering={{ request.GET.ordering }}{% endif %}" class="pagination-link">آخرین &raquo;</a>
+            {% endif %}
+        </nav>
+        {% endif %}
     </div>
-
-    {% if is_paginated %}
-    <nav class="pagination">
-        {% if page_obj.has_previous %}
-            <a href="?page=1{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">&laquo; First</a>
-            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">Previous</a>
-        {% endif %}
-
-        <span class="pagination-current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">Next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.s %}&s={{ request.GET.s }}{% endif %}" class="pagination-link">Last &raquo;</a>
-        {% endif %}
-    </nav>
-    {% endif %}
 {% endblock %}

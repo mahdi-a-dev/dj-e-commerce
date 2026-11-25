@@ -1,42 +1,52 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}addresses{% endblock %}
+{% block title %}سفارش {{ order.order_key }}{% endblock %}
 
 {% block content %}
-    <div>
-        <h3>اطلاعات شما:</h3>
-        <h4> اسم مشتری: {{ order.full_name }}</h4>
-        <h4> شماره: {{ order.phone_number }}</h4>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">جزئیات سفارش</h1>
     </div>
-    <hr>
-    <div>
-        <h3> اطلاعات آدرس:</h3>
-        <h4> استان: {{ order.shipping_province }}</h4>
-        <h4> شهر: {{ order.shipping_city }}</h4>
-        <h4> آدرس پستی:‌{{ order.shipping_postal_code }}</h4>
-        <h4> آدرس کامل: {{ order.shipping_full_address }}</h4>
+
+    <div class="order-card">
+        <h3>اطلاعات مشتری</h3>
+        <div class="order-detail-row"><strong>نام:</strong> {{ order.full_name }}</div>
+        <div class="order-detail-row"><strong>شماره تماس:</strong> {{ order.phone_number }}</div>
     </div>
-    <hr>
-    <div>
-        <h3>اطلاعات خرید:</h3>
+
+    <div class="order-card">
+        <h3>اطلاعات ارسال</h3>
+        <div class="order-detail-row"><strong>استان:</strong> {{ order.shipping_province }}</div>
+        <div class="order-detail-row"><strong>شهر:</strong> {{ order.shipping_city }}</div>
+        <div class="order-detail-row"><strong>کد پستی:</strong> {{ order.shipping_postal_code }}</div>
+        <div class="order-detail-row"><strong>آدرس کامل:</strong> {{ order.shipping_full_address }}</div>
+    </div>
+
+    <div class="order-card">
+        <h3>موارد خرید</h3>
         {% for item in order.items.all %}
-            <h4>کالا: {{ item.product_title }}</h4>
-            <h4>تعداد: {{ item.quantity }}</h4>
-            <h4>مبلغ کالا:‌ {{ item.unit_price }}</h4>
-            <h4>مبلغ تخفیف: {{ item.discount_amount }}</h4>
-            <h4>مبلغ کل: {{ item.total_price }}</h4>
-            <br>
+            <div class="order-item">
+                <div class="order-detail-row"><strong>کالا:</strong> {{ item.product_title }}</div>
+                <div class="order-detail-row"><strong>تعداد:</strong> {{ item.quantity }}</div>
+                <div class="order-detail-row"><strong>قیمت واحد:</strong> {{ item.unit_price|intcomma:False }} تومان</div>
+                <div class="order-detail-row"><strong>مبلغ تخفیف:</strong> {{ item.discount_amount|intcomma:False }} تومان</div>
+                <div class="order-detail-row"><strong>مبلغ کل:</strong> {{ item.total_price|intcomma:False }} تومان</div>
+            </div>
         {% endfor %}
-        <hr>
-        <h3><b>وضعیت سفارش: {{ order.get_status_display }}</b></h3>
-        <h3>قیمت کل کالا ها: {{ order.subtotal }}</h3>
-        <h3>قیمت کل تخفیف ها: {{ order.discount_amount }}</h3>
-        <h3>قیمت کل:‌ {{ order.total }}</h3>
+        <hr style="border:none; border-top:1px solid var(--color-border); margin:1rem 0;">
+        <div class="order-detail-row"><strong>وضعیت سفارش:</strong> <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></div>
+        <div class="order-detail-row"><strong>قیمت کل کالا ها:</strong> {{ order.subtotal|intcomma:False }} تومان</div>
+        <div class="order-detail-row"><strong>قیمت کل تخفیف ها:</strong> {{ order.discount_amount|intcomma:False }} تومان</div>
+        <div class="order-detail-row"><strong>مبلغ نهایی:</strong> {{ order.total|intcomma:False }} تومان</div>
     </div>
-    <hr>
-    {% for message in messages %}
-        {{ message}}
-    {% endfor %}
-    <a href="{% url 'payment:page' order_key=order.order_key %}">پرداخت</a>
+
+    <hr style="margin:2rem 0; border:none; border-top:1px solid var(--color-border);">
+
+    {% if order.is_expired %}
+        سفارش منقضی شده است.
+    {% elif order %}
+        <a href="{% url 'payment:page' order_key=order.order_key %}" class="btn">پرداخت سفارش</a>
+    {% endif %}
+</div>
 {% endblock %}

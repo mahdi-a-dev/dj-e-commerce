@@ -1,0 +1,9 @@
+{% load humanize %}
+
+{% if product.discount_amount %}
+    <span class="discount-badge">{{ product.discount.percentage }}%</span>
+    <del>{{ product.price|intcomma:False }}</del>
+    <strong>{{ product.final_price|intcomma:False }}</strong> تومان
+{% else %}
+    <strong>{{ product.price|intcomma:False }}</strong> تومان
+{% endif %}

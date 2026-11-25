@@ -1,21 +1,29 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}{% endblock %}
+{% block title %}سفارش ها{% endblock %}
 
 {% block content %}
-    <h2>سفارش ها</h2>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">سفارش های من</h1>
+    </div>
+
     {% for order in orders %}
-        <hr>
-        <div>
-            <h3><a href="{% url 'orders:detail' order_key=order.order_key %}"> اسم مشتری: {{ order.full_name }}</a></h3>
-            <h4> استان: {{ order.shipping_province }}</h4>
+        <div class="order-card">
+            <h3><a href="{% url 'orders:detail' order_key=order.order_key %}">{{ order.full_name }}</a></h3>
+            <div class="order-detail-row"><strong>استان:</strong> {{ order.shipping_province }}</div>
+            <div class="order-detail-row"><strong>شهر:</strong> {{ order.shipping_city }}</div>
+            <div class="order-detail-row"><strong>وضعیت:</strong> <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></div>
+            <div class="order-detail-row"><strong>مبلغ نهایی:</strong> {{ order.total|intcomma:False }} تومان</div>
         </div>
     {% empty %}
-        <div>
-        <div>📝</div>
-        <h3>هنوز سفارشی ثبت نکرده‌اید.</h3>
+        <div class="empty-state">
+            <span class="emoji">🧾</span>
+            <h3>هنوز سفارشی ثبت نکرده‌اید.</h3>
+            <p>هیچ سفارشی در حساب شما وجود ندارد.</p>
+            <a href="{% url 'storefront:front' %}" class="btn">مشاهده محصولات</a>
         </div>
-        <p>هیچ سفارش ندارید.</p>
     {% endfor %}
+</div>
 {% endblock %}

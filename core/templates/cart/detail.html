@@ -1,47 +1,57 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}{% endblock %}
+{% block title %}سبد خرید{% endblock %}
 
 {% block content %}
-<hr>
-    {% if cart_items.exists %}
-    <a href="{% url 'orders:checkout' %}">تسویه حساب</a>
-    {% endif %}
-    {% for item in cart_items %}
-        <br>
-        <article>
-            <div>
-                <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}" width="150" height="75">   
-                <br><a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">سبد خرید</h1>
+    </div>
 
-                {% if item.product.discount_price %}
-                    <a>{{ item.product.discount.percentage }}%</a> | <del>{{ item.product.price|intcomma }}</del> <strong>{{ item.product.final_price|intcomma }}</strong> تومان
-                {% else %}
-                    <strong>{{ item.product.price|intcomma }}</strong>  تومان 
-                {% endif %}
+    {% if cart_items.exists %}
+        <a href="{% url 'orders:checkout' %}" class="btn btn-full">تسویه حساب و ادامه خرید</a>
+    {% endif %}
+
+    <div class="posts-grid" style="grid-template-columns: 1fr;">
+        {% for item in cart_items %}
+            <article class="product-card cart-item">
+                <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}" class="cart-item-image">
+                <div class="cart-item-info">
+                    <div class="cart-item-title">
+                        <a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a>
+                    </div>
+                    <div style="margin-bottom:0.5rem;">
+                        {% if item.product.discount_amount %}
+                            <span class="discount-badge">{{ item.product.discount.percentage }}%</span>
+                            <del>{{ item.product.price|intcomma }}</del>
+                            <strong>{{ item.product.final_price|intcomma }}</strong> تومان
+                        {% else %}
+                            <strong>{{ item.product.price|intcomma }}</strong> تومان
+                        {% endif %}
+                    </div>
+                    <p style="font-size:0.875rem; color:var(--color-text-muted);">تعداد: {{ item.quantity }}</p>
+                </div>
+                <div class="cart-item-actions">
+                    <form method="post" action="{% url 'cart:update-quantity' pk=item.pk %}" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" min="1" max="{{ item.product.stock_quantity }}" value="{{ item.quantity }}">
+                        <button type="submit" class="btn btn-sm">بروزرسانی</button>
+                    </form>
+                    <form method="post" action="{% url 'cart:remove' product_pk=item.product.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline">حذف از سبد خرید</button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <span class="emoji">🛒</span>
+                <h3>سبد خرید خالی است.</h3>
+                <p>هنوز محصولی به سبد خرید اضافه نکرده‌اید.</p>
+                <a href="{% url 'storefront:front' %}" class="btn">مشاهده محصولات</a>
             </div>
-            <br>
-            <form method="post" action="{% url 'cart:remove' product_pk=item.product.pk %}">
-                {% csrf_token %}
-                <button type="submit">حذف از سبد خرید</button>
-            </form>
-            <form method="post" action="{% url 'cart:update-quantity' pk=item.pk %}">
-                {% csrf_token %}
-                <input 
-                    type="number"
-                    name="quantity"
-                    min="1"
-                    max="{{ item.product.stock_quantity }}",
-                    value="{{ item.quantity }}"
-                >
-                <button type="submit"> ثبت</button>
-            </form>
-        </article>
-    {% empty %}
-        <div>
-            <div>📝</div>
-            <h3>سبد خرید خالی است.</h3>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

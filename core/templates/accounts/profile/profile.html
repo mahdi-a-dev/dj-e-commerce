@@ -1,13 +1,23 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}Profile{% endblock %}
+{% block title %}پروفایل{% endblock %}
 
 {% block content %}
-    <p>{{ user.phone_number.as_national }}</p>
+<div class="container">
+    <div class="card">
+        <div class="page-header">
+            <h1 class="page-title">پروفایل من</h1>
+        </div>
+        <p>شماره تماس: {{ user.phone_number.as_national }}</p>
+        <p>نام: {{ user.profile.first_name }}</p>
+        <p>نام خانوادگی: {{ user.profile.last_name }}</p>
+    </div>
 
-    <a href="{% url 'accounts:addresses'%}">ادرس ها</a>
-    <br>
-    <a href="{% url 'accounts:edit-profile' %}">اطلاعات شخصی</a>
-    <a href="{% url 'orders:list' %}">سفارشات</a>
+    <div class="form-actions" style="margin-top:1.5rem;">
+        <a href="{% url 'accounts:addresses'%}" class="btn btn-outline">آدرس ها</a>
+        <a href="{% url 'accounts:edit-profile' %}" class="btn btn-outline">ويرايش اطلاعات شخصية</a>
+        <a href="{% url 'orders:list' %}" class="btn btn-outline">سفارشات من</a>
+    </div>
+</div>
 {% endblock %}

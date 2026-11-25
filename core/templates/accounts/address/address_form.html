@@ -2,28 +2,30 @@
 {% block title %}{% endblock %}
 
 {% block content %}
-    <hr>
-    <div>
-        <div style="border-bottom: none; padding-bottom: 0; margin-bottom: 1.5rem;">
+<div class="container">
+    <div class="form-card">
+        <div class="page-header">
+            <h1 class="page-title">ثبت آدرس</h1>
         </div>
         <form method="post">
             {% csrf_token %}
             {% for field in form %}
-                <div>
-                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% if field.help_text %}
-                        <div>{{ field.help_text }}</div>
+                        <div style="font-size:0.85rem; color:var(--color-text-light); margin-top:0.25rem;">{{ field.help_text }}</div>
                     {% endif %}
                     {% if field.errors %}
-                        <div>{{ field.errors }}</div>
+                        <div class="form-errors">{{ field.errors }}</div>
                     {% endif %}
                 </div>
             {% endfor %}
-            <div>
-                <a href="{% url 'accounts:addresses' %}" class="btn">لغو</a>
-                <button type="submit">ثبت</button>
+            <div class="form-actions">
+                <a href="{% url 'accounts:addresses' %}" class="btn btn-outline">لغو</a>
+                <button type="submit" class="btn">ثبت آدرس</button>
             </div>
         </form>
     </div>
+</div>
 {% endblock %}

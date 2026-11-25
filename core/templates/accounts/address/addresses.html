@@ -1,29 +1,36 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}addresses{% endblock %}
+{% block title %}آدرس ها{% endblock %}
 
 {% block content %}
-    <h2>آدرس ها</h2>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">آدرس های من</h1>
+    </div>
+
     {% for address in addresses %}
-        <hr>
-        <div>
-            <h3> عنوان: {{ address.title }}</h3>
-            <h4> استان: {{ address.province }}</h4>
-            <h4> شهر: {{ address.city }}</h4>
-            <h4> آدرس پستی:‌{{ address.postal_code }}</h4>
-            <h4> آدرس کامل: {{ address.full_address }}</h4>
-            <a href="{% url 'accounts:edit' pk=address.pk %}">ویرایش آدرس </a>
-            <a href="{% url 'accounts:delete' pk=address.pk %}">حذف آدرس </a>
+        <div class="address-card">
+            <h3>عنوان: {{ address.title }}</h3>
+            <p>استان: {{ address.province }}</p>
+            <p>شهر: {{ address.city }}</p>
+            <p>کد پستی: {{ address.postal_code }}</p>
+            <p>آدرس کامل: {{ address.full_address }}</p>
+            <div class="address-actions">
+                <a href="{% url 'accounts:edit' pk=address.pk %}" class="btn btn-outline btn-sm">ویرایش آدرس</a>
+                <a href="{% url 'accounts:delete' pk=address.pk %}" class="btn btn-outline btn-sm">حذف آدرس</a>
+            </div>
         </div>
     {% empty %}
-        <div>
-        <div>📝</div>
-        <h3>هنوز آدرس ثبت نکرده‌اید.</h3>
+        <div class="empty-state">
+            <span class="emoji">📍</span>
+            <h3>هنوز آدرس ثبت نکرده‌اید.</h3>
+            <p>هیچ آدرسی در حساب شما ثبت نشده است.</p>
+            <a href="{% url 'accounts:add' %}" class="btn btn-outline">ثبت آدرس</a>
         </div>
-        <p>هیچ آدرسی ندارید.</p>
-        <a href="{% url 'accounts:add' %}">ثبت آدرس</a>
     {% endfor %}
-    <hr>
-    <a href="{% url 'accounts:add' %}">ثبت آدرس جدید</a>
+
+    <hr style="margin:2rem 0; border:none; border-top:1px solid var(--color-border);">
+    <a href="{% url 'accounts:add' %}" class="btn">ثبت آدرس جدید</a>
+</div>
 {% endblock %}

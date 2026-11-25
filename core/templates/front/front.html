@@ -3,55 +3,73 @@
 {% load humanize %}
 {% block title %}{% endblock %}
 {% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">آخرین محصولات</h1>
+        <p class="page-subtitle">جدیدترین کالاهای ثبت‌شده در فروشگاه</p>
+    </div>
+    
     <div class="posts-grid">
-        کالا {{ number_of_items|intcomma:False }}
-        <form method="get">
-            {{ sort_form.ordering }}
-                <button type="submit">مرتب سازی</button>
-        </form>
-        <h2>جدید ترین محصول ها</h2>
         {% for product in products %}
-            <hr>
-            <article>
-                <div>
-                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
-   
+        <article class="product-card">
+            <div class="product-image-wrapper">
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+            </div>
+            <h2>
+                <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
+            </h2>
+            {% if product.is_in_stock %}
+            {% include "products/product_price.html" with product=product only %}
+            {% else %}
+            <div class="out-of-stock">ناموجود</div>
+            {% endif %}
+        </article>
+        {% empty %}
+        <div class="empty-state">
+            <span class="emoji">📦</span>
+            <h3>محصولی یافت نشد.</h3>
+            <p>در حال حاضر محصولی برای نمایش وجود ندارد.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="section-header">
+        <h2>آخرین تخفیف ها</h2>
+        <a href="{% url 'products:list' %}" class="view-all">همه محصولات →</a>
+        </div>
+        <div class="posts-grid">
+            {% for product in latest_discounted_products %}
+                <article class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                    </div>
                     <h2>
                         <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
                     </h2>
                     {% if product.is_in_stock %}
                         {% include "products/product_price.html" with product=product only %}
-                        {% else %}
-                             ناموجود
-                        {% endif %}
+                    {% else %}
+                        <div class="out-of-stock">ناموجود</div>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <span class="emoji">🏷️</span>
+                    <h3>تخفیفی یافت نشد.</h3>
+                    <p>در حال حاضر کالایی با تخفیف وجود ندارد.</p>
                 </div>
-            </article>
-        {% endfor %}
-            <hr>
-            <h2>آخرین تخفیف ها</h2>
-        {% for product in latest_discounted_products %}
-            <hr>
-            <article>
-                <div>
-                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}" width="300" height="150">
-   
-                    <h2>
-                        <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
-                    </h2>
-                    {% if product.is_in_stock %}
-                        {% include "products/product_price.html" with product=product only %}
-                        {% else %}
-                             ناموجود
-                        {% endif %}
-                </div>
-            </article>        
-        {% endfor %}
-        <hr>
-        <h2>دسته بندی ها</h2>
-        {% for category in main_categories %}
-            <h3>
-                <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
-            </h3>
-        {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="section-header">
+            <h2>دسته بندی ها</h2>
+        </div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem;">
+            {% for category in main_categories %}
+                <a href="{{ category.get_absolute_url }}" class="btn btn-outline btn-sm">{{ category.name }}</a>
+            {% empty %}
+                <p class="page-subtitle">دسته بندی ثبت نشده است.</p>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
