@@ -5,7 +5,9 @@ from products.models import Category
 
 
 class TestCategoryModel(TestCase):
-
+    """
+    Test category model.
+    """
     def setUp(self):
         self.category = Category.objects.create(name="django", slug="django")
 
@@ -23,5 +25,6 @@ class TestCategoryModel(TestCase):
         """
         data = self.category
         response = self.client.get(
-            reverse("products:category-list", kwargs={"slug": data.slug}))
+            reverse("products:category-list", kwargs={"slug": data.slug})
+        )
         self.assertEqual(response.status_code, 200)
