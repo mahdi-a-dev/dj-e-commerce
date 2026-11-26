@@ -2,17 +2,26 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from accounts.models import Address
-from accounts.tests.mixins.accress_mixin import AccessTestMixin
+from common.tests.accress_mixin import (
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMisin
+)
 
 User = get_user_model()
 
 
-class DeleteAddressTests(AccessTestMixin, TestCase):
+class DeleteAddressTests(
+    TestCase,
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMisin
+    ):
     """
     Test DeleteAddress view.
     """
-    
     url_name = "accounts:delete"
+    
+    expected_get_status = 200
+    expected_post_status = 302
     
     @classmethod
     def setUpTestData(cls):

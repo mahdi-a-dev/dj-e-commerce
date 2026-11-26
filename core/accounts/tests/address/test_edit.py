@@ -1,17 +1,22 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from accounts.models import Address
-from accounts.tests.mixins.accress_mixin import AccessTestMixin
+from common.tests.accress_mixin import (
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMisin
+)
 
 User = get_user_model()
 
 
-class EditAddressTests(AccessTestMixin, TestCase):
+class EditAddressTests(
+    TestCase,
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMisin
+    ):
     """
     Test EditAddress view.
     """
-    
     url_name = "accounts:edit"
     valid_data = {
         "title": "home address",
@@ -20,6 +25,9 @@ class EditAddressTests(AccessTestMixin, TestCase):
         "postal_code": "3325214502",
         "full_address": "user address"
     }
+    
+    expected_get_status = 200
+    expected_post_status = 302
     
     @classmethod
     def setUpTestData(cls):
