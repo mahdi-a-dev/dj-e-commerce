@@ -39,6 +39,22 @@ class DeleteAddressTests(
             postal_code="3345454502",
             full_address="user address"
         )
+        
+        # other user
+        cls.other_user = User.objects.create_user(
+            phone_number="09102233696",
+            password="password-123"
+        )
+        
+        # other address
+        cls.other_address = Address.objects.create(
+            user=cls.other_user,
+            title="word address",
+            province="Qazvin",
+            city="Qazvin",
+            postal_code="3516454502",
+            full_address="address"   
+        )
           
     def get_url_kwargs(self):
         return {"pk": self.address.pk}
@@ -58,5 +74,27 @@ class DeleteAddressTests(
         self.assertFalse(
             Address.objects.filter(
                 pk=self.address.pk
+            ).exists()
+        )
+        
+    def test_user_cannot_delete_other_users_address(self):
+        """
+        Test user cannot delete other users address.
+        """
+        self.client.force_login(self.user)
+        
+        response = self.client.post(
+            reverse(
+                self.url_name,
+                kwargs={"pk": self.other_address.pk}
+            )
+        )
+        
+        self.assertEqual(response.status_code, 404)
+        
+        self.assertTrue(
+            Address.objects.filter(
+                user=self.other_user,
+                title=self.other_address.title
             ).exists()
         )
