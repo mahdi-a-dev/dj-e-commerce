@@ -43,7 +43,7 @@ class AnonymousUserAccessMixin(BaseAccessTestMixin):
         self.assertEqual(response.status_code, 302)
     
 
-class AuthenticatedUserAccessMisin(BaseAccessTestMixin):
+class AuthenticatedUserAccessMixin(BaseAccessTestMixin):
     """
     Test athenticated user accessibility.
     """
