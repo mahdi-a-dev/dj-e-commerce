@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from accounts.models import Address
 from common.tests.accress_mixin import (
     AnonymousUserAccessMixin,
-    AuthenticatedUserAccessMisin
+    AuthenticatedUserAccessMixin
 )
 
 User = get_user_model()
@@ -12,7 +12,7 @@ User = get_user_model()
 class AddAddressTests(
     TestCase,
     AnonymousUserAccessMixin,
-    AuthenticatedUserAccessMisin
+    AuthenticatedUserAccessMixin
     ):
     """
     Test AddAddress view.

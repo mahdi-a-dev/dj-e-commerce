@@ -1,17 +1,21 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.urls import reverse
-from accounts.models import Profile
-from accounts.tests.mixins.accress_mixin import AccessTestMixin
+from common.tests.accress_mixin import (
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMixin
+)
 
 User = get_user_model()
 
 
-class EditProfileTests(AccessTestMixin, TestCase):
+class EditProfileTests(
+    TestCase,
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMixin
+    ):
     """
     Test EditProfile view.
-    """
-    
+    """  
     url_name = "accounts:edit-profile"
     valid_data = {
         "first_name": "mohammadreza",
