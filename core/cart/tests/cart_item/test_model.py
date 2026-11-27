@@ -1,8 +1,9 @@
-from django.test import TestCase
-from cart.models import Cart, CartItem
-from products.models import Product, Category
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
+from django.test import TestCase
+from products.models import Category, Product
+
+from cart.models import CartItem
 
 user = get_user_model()
 
@@ -15,10 +16,13 @@ class TestCartItemModel(TestCase):
             phone_number="09101478512",
             password="user-password-123"
         )
-        self.cart = Cart.objects.create(
-            user=self.user
+        self.cart = self.user.cart
+        
+        self.category = Category.objects.create(
+            name='django',
+            slug='django'
+        
         )
-        self.category = Category.objects.create(name='django', slug='django')
         self.product = Product.objects.create(
             category_id=self.category.pk,
             title='django beginners',
@@ -47,9 +51,8 @@ class TestCartItemModel(TestCase):
         Test Saving a `CartItem` fails when the shopping cart and the product are not unique.
         """
         with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                CartItem.objects.create(
-                    cart=self.cart,
-                    product=self.product,
-                    quantity=1
-                )
+            CartItem.objects.create(
+                cart=self.cart,
+                product=self.product,
+                quantity=1
+            )
