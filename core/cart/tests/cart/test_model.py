@@ -1,22 +1,24 @@
-from django.test import TestCase
-from cart.models import Cart
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+
+from cart.models import Cart
 
 user = get_user_model()
 
 
 class TestCartModel(TestCase):
-
+    """
+    Test cart model.
+    """
     def setUp(self):
         self.user = user.objects.create_user(
             phone_number="09101478512",
             password="user-password-123"
         )
-        self.cart = Cart.objects.create(
-            user=self.user
-        )
+        
+        self.cart = self.user.cart
 
-    def test_cart_model_entry(self):
+    def test_model_entry(self):
         """
         Test Cart model data insertion/types/field attributes
         """
