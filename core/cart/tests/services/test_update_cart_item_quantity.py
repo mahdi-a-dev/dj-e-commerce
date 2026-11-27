@@ -5,16 +5,16 @@ from products.models import Category, Product
 from cart.services import update_cart_item_quantity
 from cart.models import CartItem
 
-user = get_user_model()
+User = get_user_model()
 
 
-class TestRemoveCartItemService(TestCase):
+class TestUpdateCartItemQuantityService(TestCase):
     """
     Test update cart item quantity service.
     """
     @classmethod
     def setUpTestData(cls):
-        cls.user = user.objects.create_user(
+        cls.user = User.objects.create_user(
             phone_number="09190000000",
             password="test-123"
         )
@@ -41,6 +41,9 @@ class TestRemoveCartItemService(TestCase):
         )
     
     def test_update_cart_item_quantity(self):
+        """
+        Test update item quantity for valid product.
+        """
         update_cart_item_quantity(
             cart=self.cart,
             item_pk=self.cart_item.pk,
@@ -56,25 +59,65 @@ class TestRemoveCartItemService(TestCase):
             item.quantity,
             2
         )
-    
-    def test_item_with_insufficient_stock_will_not_be_increased(self):
-        product = Product.objects.create(
-            category_id=self.category.pk,
-            title="Product",
-            slug="Product",
-            price=1000,
-            main_image="other",
-            stock_quantity=3
-        )
         
-        cart_item = CartItem.objects.create(
-            cart=self.cart,
-            product=product
-        )
+    def test_update_quantity_for_unavailable_product_failed(self):
+        """
+        Test update quantity for unavailable product failed.
+        """
+        self.product.delete()
+        
+        with self.assertRaises(CartItem.DoesNotExist):
+            update_cart_item_quantity(
+                self.cart,
+                self.cart_item.pk,
+                1
+            )
+            
+    def test_update_quantity_for_inactive_item_failed(self):
+        """
+        Test update quantity for inactive product failed.
+        """        
+        self.product.is_active = False
+        
+        self.product.save(update_fields=["is_active"])
         
         with self.assertRaises(ValidationError):
             update_cart_item_quantity(
-                cart=self.cart,
-                item_pk=cart_item.pk,
-                quantity=4
+                self.cart,
+                self.cart_item.pk,
+                2
             )
+            
+    def test_update_quantity_for_out_of_stock_item_failed(self):
+        """
+        Test update quantity for a out of stock product failed.
+        """
+        self.product.stock_quantity = 0
+        self.product.save(update_fields=["stock_quantity"])
+        
+        with self.assertRaises(ValidationError):
+            update_cart_item_quantity(
+                self.cart,
+                self.cart_item.pk,
+                1
+            )
+    
+    def test_item_with_insufficient_stock_will_not_be_increased(self):
+        """
+        Test item with issufficient stock will not be increased.
+        """
+        with self.assertRaises(ValidationError):
+            update_cart_item_quantity(
+                cart=self.cart,
+                item_pk=self.cart_item.pk,
+                quantity=5
+            )
+        
+        self.cart_item.refresh_from_db()
+        
+        self.assertEqual(self.cart_item.quantity, 1)
+        
+    
+    
+        
+        
