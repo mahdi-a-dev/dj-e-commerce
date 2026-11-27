@@ -2,9 +2,12 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from products.models import Category, Product
 from cart.models import CartItem
-from common.tests.accress_mixin import AnonymousUserAccessMixin, AuthenticatedUserAccessMixin
+from common.tests.accress_mixin import (
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMixin
+)
 
-user = get_user_model()
+User = get_user_model()
 
 
 class TestAddItemView(
@@ -12,6 +15,9 @@ class TestAddItemView(
     AnonymousUserAccessMixin,
     AuthenticatedUserAccessMixin
     ):
+    """
+    Test add item view.
+    """
     
     url_name = "cart:add"
     
@@ -20,7 +26,7 @@ class TestAddItemView(
     
     @classmethod
     def setUpTestData(cls):
-        cls.user = user.objects.create_user(
+        cls.user = User.objects.create_user(
             phone_number="09190000000",
             password="test-123"
         )
@@ -41,10 +47,19 @@ class TestAddItemView(
             stock_quantity=4 
         )
     
+        # another user
+        cls.another_user = User.objects.create_user(
+            phone_number="09100000000",
+            password="test-123"
+        )
+    
     def get_url_kwargs(self):
         return {"product_pk": self.product.pk}
     
-    def test_user_can_add_item(self):
+    def test_user_can_only_add_item_to_own_cart(self):
+        """
+        Test user can add item.
+        """
         self.client.force_login(self.user)
         
         response = self.client.post(
@@ -59,3 +74,12 @@ class TestAddItemView(
                 product=self.product
             ).exists()
         )
+        # cart from another user
+        another_cart = self.another_user.cart
+        
+        self.assertFalse(
+            CartItem.objects.filter(
+                cart=another_cart,
+                product=self.product
+            ).exists()
+        )    

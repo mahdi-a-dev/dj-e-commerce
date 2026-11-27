@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from products.models import Category, Product
-from common.tests.accress_mixin import AnonymousUserAccessMixin, AuthenticatedUserAccessMixin
+from common.tests.accress_mixin import (
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMixin
+)
 
 from cart.models import CartItem
 

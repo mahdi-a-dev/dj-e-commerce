@@ -1,10 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from products.models import Category, Product
-from common.tests.accress_mixin import AnonymousUserAccessMixin, AuthenticatedUserAccessMixin
+from common.tests.accress_mixin import (
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMixin
+)
 from cart.models import CartItem
 
-user = get_user_model()
+User = get_user_model()
 
 
 class TestAddItemView(
@@ -23,7 +26,7 @@ class TestAddItemView(
     
     @classmethod
     def setUpTestData(cls):
-        cls.user = user.objects.create_user(
+        cls.user = User.objects.create_user(
             phone_number="09190000000",
             password="test-123"
         )
@@ -50,9 +53,12 @@ class TestAddItemView(
         )
     
     def get_url_kwargs(self):
-        return {"pk": self.product.pk}
+        return {"pk": self.cart_item.pk}
 
     def test_user_can_update_item_quantity(self):
+        """
+        Test user can update item quantity.
+        """
         self.client.force_login(self.user)
         
         response = self.client.post(

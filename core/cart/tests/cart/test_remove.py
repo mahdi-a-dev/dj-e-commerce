@@ -2,9 +2,11 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from products.models import Category, Product
 from cart.models import CartItem
-from common.tests.accress_mixin import AnonymousUserAccessMixin, AuthenticatedUserAccessMixin
-
-user = get_user_model()
+from common.tests.accress_mixin import (
+    AnonymousUserAccessMixin,
+    AuthenticatedUserAccessMixin
+)
+User = get_user_model()
 
 
 class TestRemoveItemView(
@@ -12,7 +14,9 @@ class TestRemoveItemView(
     AnonymousUserAccessMixin,
     AuthenticatedUserAccessMixin
     ):
-    
+    """
+    Test remove item view.
+    """
     url_name = "cart:remove"
     
     expected_get_status = 405
@@ -20,7 +24,7 @@ class TestRemoveItemView(
     
     @classmethod
     def setUpTestData(cls):
-        cls.user = user.objects.create_user(
+        cls.user = User.objects.create_user(
             phone_number="09190000000",
             password="test-123"
         )
@@ -50,6 +54,9 @@ class TestRemoveItemView(
         return {"product_pk": self.product.pk}
     
     def test_user_can_remove_item(self):
+        """
+        Test user can remove item.
+        """
         self.client.force_login(self.user)
         
         response = self.client.post(
