@@ -4,17 +4,16 @@ from products.models import Category, Product
 from cart.services import remove_cart_item
 from cart.models import CartItem
 
-user = get_user_model()
+User = get_user_model()
 
 
 class TestRemoveCartItemService(TestCase):
     """
     Test remove cart item service.
     """
-    
     @classmethod
     def setUpTestData(cls):
-        cls.user = user.objects.create_user(
+        cls.user = User.objects.create_user(
             phone_number="09190000000",
             password="test-123"
         )
@@ -41,6 +40,9 @@ class TestRemoveCartItemService(TestCase):
         )
     
     def test_remove_cart_item(self):
+        """
+        Test remove a cart item.
+        """
         remove_cart_item(self.cart, self.product.pk)
         
         self.assertFalse(

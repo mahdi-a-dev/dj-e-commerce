@@ -5,17 +5,16 @@ from products.models import Category, Product
 from cart.services import add_cart_item
 from cart.models import CartItem
 
-user = get_user_model()
+User = get_user_model()
 
 
 class TestAddCartItemService(TestCase):
     """
     Test add cart item service.
     """
-
     @classmethod
     def setUpTestData(cls):
-        cls.user = user.objects.create_user(
+        cls.user = User.objects.create_user(
             phone_number="09190000000",
             password="test-123"
         )
@@ -37,6 +36,9 @@ class TestAddCartItemService(TestCase):
         )
     
     def test_adding_a_item_successful(self):
+        """
+        Test adding a valid product.
+        """
         add_cart_item(self.cart, self.product.pk)
         
         self.cart.refresh_from_db()
@@ -48,20 +50,39 @@ class TestAddCartItemService(TestCase):
             ).exists()
         )
     
-    def test_adding_a_item_failed(self):
-        product = Product.objects.create(
-            category_id=self.category.pk,
-            title="Product",
-            slug="Product",
-            price=1000,
-            main_image="other",
-            stock_quantity=0  
-        )
+    def test_adding_a_out_of_stock_item_failed(self):
+        """
+        Test adding a out of stock product failed.
+        """
+        self.product.stock_quantity = 0
+        self.product.save(update_fields=["stock_quantity"])
         
         with self.assertRaises(ValidationError):
-            add_cart_item(self.cart, product.pk)
+            add_cart_item(self.cart, self.product.pk)
+    
+    def test_adding_a_inactive_item_failed(self):
+        """
+        Test adding a inactive product failed.
+        """
+        self.product.is_active = False
+        self.product.save(update_fields=["is_active"])
+        
+        with self.assertRaises(ValidationError):
+            add_cart_item(self.cart, self.product.pk)
+    
+    def test_adding_a_unavailable_product_failed(self):
+        """
+        Test adding a unavailable product failed.
+        """
+        self.product.delete()
+        
+        with self.assertRaises(Product.DoesNotExist):
+            add_cart_item(self.cart, self.product.pk)
             
     def test_Adding_duplicate_item_does_not_result_in_an_increase_in_quantity(self):
+        """
+        Test adding a duplicate item does not increase the quantity.
+        """
         add_cart_item(self.cart, self.product.pk)
         add_cart_item(self.cart, self.product.pk)
         
